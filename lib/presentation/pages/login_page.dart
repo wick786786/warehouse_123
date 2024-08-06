@@ -1,21 +1,37 @@
 import 'package:flutter/material.dart';
-import 'constants.dart';
+import '../../src/core/constants.dart';
+
 class LoginPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    // Access the theme data from the context
+    final ThemeData theme = Theme.of(context);
+    final Color primaryColor = theme.colorScheme.primary;
+    final Color onPrimaryColor = theme.colorScheme.onPrimary;
+    final TextStyle headlineStyle = theme.textTheme.headlineLarge?.copyWith(
+      color: onPrimaryColor,
+      fontWeight: FontWeight.w700,
+    ) ?? TextStyle(fontSize: 72, fontWeight: FontWeight.w700);
+
     return Scaffold(
       body: Stack(
         children: [
+          // Background image with color filter
           Container(
             decoration: BoxDecoration(
               image: DecorationImage(
                 image: AssetImage('assets/background_4.jpg'),
                 fit: BoxFit.cover,
+                colorFilter: ColorFilter.mode(
+                  theme.colorScheme.primary.withOpacity(0.6), // Change this color to whatever you prefer
+                  BlendMode.darken, // Blend mode to apply the color filter
+                ),
               ),
             ),
           ),
+          // Overlay
           Container(
-            color: Color(0xFFF6F5FA).withOpacity(0.8),
+            color: theme.colorScheme.surface.withOpacity(0.8),
             child: Row(
               children: [
                 Expanded(
@@ -23,14 +39,14 @@ class LoginPage extends StatelessWidget {
                     child: Container(
                       padding: EdgeInsets.all(20),
                       child: RichText(
-                        text: TextSpan(
+                        text: const TextSpan(
                           children: [
                             TextSpan(
                               text: "Phone Diagnostic made ",
                               style: TextStyle(
                                 fontFamily: 'Poppins, "Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
                                 fontWeight: FontWeight.w700,
-                                color: Color(0xFF030712),
+                                color: Colors.white,
                                 fontSize: 72,
                                 height: 1,
                               ),
@@ -40,12 +56,11 @@ class LoginPage extends StatelessWidget {
                               style: TextStyle(
                                 fontFamily: 'Poppins, "Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
                                 fontWeight: FontWeight.w700,
-                                color: AppColors.primaryColor,
+                                color:  Color(0xFF4CAF50) ,
                                 fontSize: 72,
                                 height: 1,
                               ),
                             ),
-                            
                           ],
                         ),
                       ),
@@ -58,11 +73,11 @@ class LoginPage extends StatelessWidget {
                       width: 400,
                       padding: EdgeInsets.all(20),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: theme.colorScheme.surface,
                         borderRadius: BorderRadius.circular(10),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.grey.withOpacity(0.5),
+                            color: theme.shadowColor.withOpacity(0.5),
                             spreadRadius: 5,
                             blurRadius: 4,
                             offset: Offset(0, 3),
@@ -75,13 +90,14 @@ class LoginPage extends StatelessWidget {
                           Icon(
                             Icons.lock,
                             size: 60,
-                            color: AppColors.primaryColor,
+                            color: primaryColor,
                           ),
                           SizedBox(height: 20),
                           TextField(
                             decoration: InputDecoration(
-                              prefixIcon: Icon(Icons.person, color: AppColors.primaryColor),
+                              prefixIcon: Icon(Icons.person, color: primaryColor),
                               labelText: 'Username',
+                              labelStyle: TextStyle(color: theme.colorScheme.onSurface),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(10),
                               ),
@@ -91,8 +107,9 @@ class LoginPage extends StatelessWidget {
                           TextField(
                             obscureText: true,
                             decoration: InputDecoration(
-                              prefixIcon: Icon(Icons.lock, color: AppColors.primaryColor),
+                              prefixIcon: Icon(Icons.lock, color: primaryColor),
                               labelText: 'Password',
+                              labelStyle: TextStyle(color: theme.colorScheme.onSurface),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(10),
                               ),
@@ -104,7 +121,7 @@ class LoginPage extends StatelessWidget {
                               // Handle login action
                             },
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.primaryColor,
+                              backgroundColor: primaryColor,
                               padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(10),
@@ -114,7 +131,7 @@ class LoginPage extends StatelessWidget {
                               'Login',
                               style: TextStyle(
                                 fontSize: 18,
-                                color: Colors.white,
+                                color: onPrimaryColor,
                               ),
                             ),
                           ),

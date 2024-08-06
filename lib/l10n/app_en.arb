@@ -1,0 +1,7 @@
+{
+  "@@locale": "en",
+    "title": "Language Selector",
+    "waiting_message": "Waiting for device to be connected...",
+    "connected_devices": "Connected Devices"
+  }
+  

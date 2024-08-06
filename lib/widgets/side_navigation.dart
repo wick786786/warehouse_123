@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'device_list_page.dart'; // Import the new page
-import 'processed_list.dart';
-import 'constants.dart'; // Import the constants
+import '../presentation/pages/device_list_page.dart'; // Import the new page
+import '../presentation/pages/processed_list.dart';
+import '../src/core/constants.dart'; // Import the constants
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class SideNavigation extends StatefulWidget {
   @override
@@ -14,6 +15,12 @@ class _SideNavigationState extends State<SideNavigation> {
 
   @override
   Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    final Color primaryColor = theme.colorScheme.primary;
+    final Color sidebarColor = theme.colorScheme.secondary;
+    final TextStyle drawerHeaderStyle = theme.textTheme.headlineSmall ?? TextStyle();
+    final TextStyle listItemStyle = theme.textTheme.bodyLarge ?? TextStyle();
+
     return Drawer(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
@@ -21,19 +28,19 @@ class _SideNavigationState extends State<SideNavigation> {
         children: [
           DrawerHeader(
             decoration: BoxDecoration(
-              color: AppColors.primaryColor,
+              color: primaryColor,
             ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Container(
                   padding: EdgeInsets.all(20),
-                  child: Icon(Icons.person, color: AppColors.whiteColor, size: 50),
+                  child: Icon(Icons.person, color: theme.colorScheme.onPrimary, size: 50),
                 ),
                 Center(
                   child: Text(
-                    'Satyam',
-                    style: AppTextStyles.drawerHeader,
+                    "Satyam",
+                    style: drawerHeaderStyle,
                   ),
                 ),
               ],
@@ -46,7 +53,7 @@ class _SideNavigationState extends State<SideNavigation> {
               children: [
                 _buildNavItem(
                   icon: Icons.check_circle,
-                  text: 'Completed',
+                  text: AppLocalizations.of(context)!.completed,
                   isHovering: _isHoveringCompleted,
                   onEnter: () => setState(() => _isHoveringCompleted = true),
                   onExit: () => setState(() => _isHoveringCompleted = false),
@@ -60,7 +67,7 @@ class _SideNavigationState extends State<SideNavigation> {
                 SizedBox(height: 28),
                 _buildNavItem(
                   icon: Icons.hourglass_empty,
-                  text: 'Under Process',
+                  text: AppLocalizations.of(context)!.underProcess,
                   isHovering: _isHoveringUnderProcess,
                   onEnter: () => setState(() => _isHoveringUnderProcess = true),
                   onExit: () => setState(() => _isHoveringUnderProcess = false),
@@ -76,7 +83,7 @@ class _SideNavigationState extends State<SideNavigation> {
           ),
         ],
       ),
-      backgroundColor: AppColors.sidebarColor,
+      backgroundColor: sidebarColor,
     );
   }
 
@@ -88,6 +95,10 @@ class _SideNavigationState extends State<SideNavigation> {
     required VoidCallback onExit,
     required VoidCallback onTap,
   }) {
+    final ThemeData theme = Theme.of(context);
+    final Color primaryColor = theme.colorScheme.primary;
+    final TextStyle listItemStyle = theme.textTheme.bodyLarge ?? TextStyle();
+
     return MouseRegion(
       onEnter: (_) => onEnter(),
       onExit: (_) => onExit(),
@@ -99,12 +110,12 @@ class _SideNavigationState extends State<SideNavigation> {
               duration: Duration(milliseconds: 300),
               child: Icon(
                 icon,
-                color: AppColors.primaryColor,
+                color: primaryColor,
                 size: 30,
                 shadows: isHovering
                     ? [
                         Shadow(
-                          color: AppColors.primaryColor.withOpacity(0.8),
+                          color: primaryColor.withOpacity(0.8),
                           blurRadius: 10,
                         ),
                       ]
@@ -114,7 +125,7 @@ class _SideNavigationState extends State<SideNavigation> {
             SizedBox(height: 6),
             Text(
               text,
-              style: AppTextStyles.listItem,
+              style: listItemStyle,
             ),
           ],
         ),

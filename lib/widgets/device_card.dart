@@ -2,9 +2,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'dart:math';
-import 'constants.dart'; // Import the constants
-import 'launch_app.dart';
-import 'log_cat.dart'; // Make sure to import the LogCat class
+import '../src/helpers/launch_app.dart';
+import '../src/helpers/log_cat.dart'; // Ensure LogCat class is imported
+import '../src/helpers/sql_helper.dart';
 
 class DeviceCard extends StatefulWidget {
   final Map<String, String> device;
@@ -25,16 +25,37 @@ class _DeviceCardState extends State<DeviceCard> {
     _startLogCat();
   }
 
-  void _startLogCat() {
+  void _startLogCat() async {
     String? id = widget.device['id'];
+    print('debug : device card ${widget.device['id']}');
     if (id != null) {
-      LogCat.startLogCat(id);
+      try {
+        LogCat.startLogCat(id);
 
-      _progressSubscription = LogCat.getProgressStream(id).listen((progress) {
-        setState(() {
-          percent = progress / 100; // Assuming 100% is the max progress
+        _progressSubscription = LogCat.getProgressStream(id).listen((progress) async {
+          setState(() {
+            percent = progress / 100; // Assuming 100% is the max progress
+          });
+          print("my debug $percent");
+          if (percent >= 0.9) {
+            print("my debug");
+
+            try {
+              await SqlHelper.createItem(
+                widget.device['manufacturer'] ?? '',
+                widget.device['model'] ?? '',
+                widget.device['imeiOutput'] ?? '',
+                widget.device['serialNumber'] ?? '',
+              );
+              print("my id : $id");
+            } catch (e) {
+              print('Error creating item: $e');
+            }
+          }
         });
-      });
+      } catch (e) {
+        print('Error starting LogCat: $e');
+      }
     }
   }
 
@@ -55,9 +76,15 @@ class _DeviceCardState extends State<DeviceCard> {
 
   @override
   Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    final Color primaryColor = theme.colorScheme.primary;
+    final Color whiteColor = theme.colorScheme.onPrimary;
+    final TextStyle deviceCardTitle = theme.textTheme.headlineSmall ?? TextStyle();
+    final TextStyle deviceDetails = theme.textTheme.bodySmall ?? TextStyle();
+
     return Container(
       child: Card(
-        color: AppColors.whiteColor,
+        color: theme.cardColor,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(15.0),
         ),
@@ -69,11 +96,11 @@ class _DeviceCardState extends State<DeviceCard> {
             children: [
               Row(
                 children: [
-                  Icon(Icons.android, color: AppColors.primaryColor),
+                  Icon(Icons.android, color: primaryColor),
                   SizedBox(width: 8),
                   Text(
                     'Device ${widget.device['id']?.substring(0, min(6, widget.device['id']?.length ?? 0))}',
-                    style: AppTextStyles.deviceCardTitle,
+                    style: deviceCardTitle,
                   ),
                 ],
               ),
@@ -86,27 +113,28 @@ class _DeviceCardState extends State<DeviceCard> {
               ),
               SizedBox(height: 8),
               Text(
-                'Model: ${widget.device['model']}\n'
-                'Manufacturer: ${widget.device['manufacturer']}\n'
-                'Android Version: ${widget.device['androidVersion']}\n'
-                'Serial Number: ${widget.device['serialNumber']}\n'
-                'IMEI: ${widget.device['imeiOutput']}',
-                style: AppTextStyles.deviceDetails,
+                'Model: ${widget.device['model'] ?? 'N/A'}\n'
+                'Manufacturer: ${widget.device['manufacturer'] ?? 'N/A'}\n'
+                'Android Version: ${widget.device['androidVersion'] ?? 'N/A'}\n'
+                'Serial Number: ${widget.device['serialNumber'] ?? 'N/A'}\n'
+                'IMEI: ${widget.device['imeiOutput'] ?? 'N/A'}',
+                style: deviceDetails,
               ),
               SizedBox(height: 10),
               LinearPercentIndicator(
                 width: 200.0,
                 animation: true,
                 animationDuration: 1000,
-                lineHeight: 20.0,
+                lineHeight: 23.0,
                 percent: percent,
                 center: Text(
                   "${(percent * 100).toStringAsFixed(1)}%",
-                  style: TextStyle(color: AppColors.whiteColor),
+                  style: TextStyle(color: whiteColor,fontSize: 12),
                 ),
                 linearStrokeCap: LinearStrokeCap.roundAll,
-                progressColor: AppColors.primaryColor,
+                progressColor: primaryColor,
               ),
+              SizedBox(height: 15),
               if (percent >= 1.0)
                 Row(
                   children: [

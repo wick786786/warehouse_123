@@ -7,17 +7,6 @@ class LaunchApp extends StatelessWidget {
   const LaunchApp({super.key});
   static Map<String, int> pp = {};
 
-  // Future<void> progress_check(String deviceId) async {
-  //   var resp = await LogCat.log_demo(deviceId);
-  //   if (resp) {
-  //     if (pp.containsKey(deviceId)) {
-  //       pp[deviceId] = (pp[deviceId]! + 1);
-  //       print("progress percent : ${pp[deviceId]}");
-  //     } else {
-  //       pp[deviceId] = 1; // Initialize if not present
-  //     }
-  //   }
-  // }
 
   Future<String> launchApplication(String deviceId, String apkFileName, String packageName, String mainActivity) async {
   // Default path for APK in Downloads directory
