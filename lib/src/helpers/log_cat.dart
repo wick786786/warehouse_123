@@ -13,6 +13,7 @@ class LogCat {
   }
 
   static void startLogCat(String deviceId) {
+    print('debug:logcat $deviceId');
     Process.start(
       'adb',
       ['-s', deviceId, 'logcat'],
@@ -22,9 +23,15 @@ class LogCat {
 
       process.stdout.transform(Utf8Decoder()).listen((data) {
         if (data.contains('Success 123')) {
-          progress++;
+          progress=progress+10;
           _progressControllers[deviceId]?.add(progress);
         }
+        // -------- you can add rest of the logs -------
+        // if(data.contains('Success 123'))
+        // {
+        //   progress++;
+        //   _progressControllers[deviceId]?.add(progress);
+        // }
       });
 
       process.stderr.transform(Utf8Decoder()).listen((data) {
