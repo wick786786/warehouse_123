@@ -4,7 +4,7 @@ import 'view_details.dart';
 import '../../widgets/cards.dart';
 import '../../src/core/constants.dart';
 import '../../src/helpers/sql_helper.dart';
-
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 class DeviceListPage extends StatefulWidget {
   @override
   _DeviceListPageState createState() => _DeviceListPageState();
@@ -63,12 +63,13 @@ class _DeviceListPageState extends State<DeviceListPage> {
     final Color onSurfaceColor = theme.colorScheme.onSurface;
     final TextStyle titleStyle = theme.textTheme.titleLarge?.copyWith(color: theme.colorScheme.onPrimary) ?? TextStyle();
     final TextStyle sectionTitleStyle = theme.textTheme.titleMedium?.copyWith(color: theme.colorScheme.onSurface) ?? TextStyle();
+   
 
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'List of Diagnosed Devices',
-          style: titleStyle,
+          AppLocalizations.of(context)!.list,
+          style:titleStyle,
         ),
         backgroundColor: primaryColor,
         actions: [
@@ -123,10 +124,10 @@ class _DeviceListPageState extends State<DeviceListPage> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                CardF(title: 'All Products', color: 'red', devices: '4'),
-                CardF(title: 'Out of Stock', color: 'yellow', devices: '4'),
-                CardF(title: 'Limited Stock', color: 'blue', devices: '4'),
-                CardF(title: 'Other Stock', color: 'green', devices: '4'),
+                CardF(title: AppLocalizations.of(context)!.all_items, color: 'red', devices: '4'),
+                CardF(title: AppLocalizations.of(context)!.out_of_stock, color: 'yellow', devices: '4'),
+                CardF(title: AppLocalizations.of(context)!.limited_stocks, color: 'blue', devices: '4'),
+                CardF(title: AppLocalizations.of(context)!.other_stocks, color: 'green', devices: '4'),
               ],
             ),
             SizedBox(height: 20),
@@ -194,7 +195,8 @@ class _DeviceListPageState extends State<DeviceListPage> {
                     index + 1, // Auto-numbering starting from 1
                     filteredDevices[index]['manufacturer'] + " " + filteredDevices[index]['model']!,
                     'assets/device2.jpg', // Image asset path
-                    filteredDevices[index]["createdAt"]
+                    filteredDevices[index]["createdAt"],
+                    filteredDevices[index]
                   );
                 },
               ),
@@ -204,7 +206,7 @@ class _DeviceListPageState extends State<DeviceListPage> {
       ),
     );
   }
-Widget _buildDeviceRow(int index, String phone, String imagePath, String date) {
+Widget _buildDeviceRow(int index, String phone, String imagePath, String date,Map<String,dynamic>details) {
   final ThemeData theme = Theme.of(context);
   final Color darkGrey = theme.colorScheme.onSurface;
   final Color rowColor = theme.brightness == Brightness.dark ? theme.colorScheme.surface : Colors.white;
@@ -259,9 +261,17 @@ Widget _buildDeviceRow(int index, String phone, String imagePath, String date) {
         ),
         Expanded(
           flex: 2,
-          child: Text(
-            'Action', // Placeholder for the Action column
-            style: TextStyle(fontSize: 14, color: darkGrey),
+          child: TextButton(
+            child:Text('view Details'),
+             // Placeholder for the Action column
+            onPressed:()
+            { 
+               Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => DeviceDetails(details:details)),
+                    );
+             } ,
+            //style: TextStyle(fontSize: 14, color: darkGrey),
           ),
         ),
       ],

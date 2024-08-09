@@ -2,6 +2,7 @@
   "@@locale": "es_ES",
     "title": "Selector de idioma",
     "waiting_message": "Esperando a que se conecte el dispositivo...",
-    "connected_devices": "Dispositivos conectados"
+    "connected_devices": "Dispositivos conectados",
+    "list_of_allDevices": "",
   }
   

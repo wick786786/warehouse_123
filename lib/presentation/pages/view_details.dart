@@ -5,9 +5,11 @@ import 'package:path_provider/path_provider.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:open_filex/open_filex.dart';
 import 'dart:io';
+import 'package:adb_client/src/helpers/sql_helper.dart';
 
 class DeviceDetails extends StatelessWidget {
-  const DeviceDetails({super.key});
+   const DeviceDetails({super.key, required this.details});
+   final Map<String,dynamic>details;
 
   Future<void> _downloadReport() async {
     try {
@@ -42,10 +44,10 @@ class DeviceDetails extends StatelessWidget {
               pw.SizedBox(height: 32),
               pw.Text('Hardware Details', style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold)),
               pw.SizedBox(height: 8),
-              pw.Text('Manufacturer: Apple'),
+              pw.Text('Manufacturer: ${details['manufacturer']}'),
               pw.Text('Type: Smartphone'),
-              pw.Text('Model: Apple iPhone 11 4GB/256GB'),
-              pw.Text('IMEI: 356-564-103-944-190'),
+              pw.Text('Model: ${details['model']}'),
+              pw.Text('IMEI: ${details['iemi']}'),
               pw.SizedBox(height: 32),
               pw.Text('Software Information', style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold)),
               pw.SizedBox(height: 8),
@@ -89,15 +91,17 @@ class DeviceDetails extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
-        backgroundColor: Colors.lightBlue[50], // Set light blue background
+        backgroundColor: Color.fromARGB(255, 222, 238, 226), // Set light blue background
         appBar: AppBar(
-          title: const Text('Device Diagnostic Report'),
+          //title: const Text('Device Diagnostic Report'),
           leading: IconButton(
             icon: Icon(Icons.arrow_back),
             onPressed: () {
               Navigator.pop(context);
             },
+            
           ),
+          backgroundColor:Color.fromARGB(255, 222, 238, 226) ,
         ),
         body: SingleChildScrollView(
           padding: const EdgeInsets.all(16.0),
@@ -113,9 +117,9 @@ class DeviceDetails extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 16),
-              const Text(
-                'Diagnose ID: 35270220240718',
-                style: TextStyle(
+               Text(
+                'Diagnose ID: ${details['iemi']} ',
+                style: const TextStyle(
                   fontSize: 18,
                   color: Colors.black54, // Lighter text for less emphasis
                 ),
@@ -130,10 +134,10 @@ class DeviceDetails extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 8),
-              const Text('Manufacturer: Apple', style: TextStyle(color: Colors.black54)),
+               Text('Manufacturer: ${details['manufacturer']}', style: TextStyle(color: Colors.black54)),
               const Text('Type: Smartphone', style: TextStyle(color: Colors.black54)),
-              const Text('Model: Apple iPhone 11 4GB/256GB', style: TextStyle(color: Colors.black54)),
-              const Text('IMEI: 356-564-103-944-190', style: TextStyle(color: Colors.black54)),
+               Text('Model: ${details['model']}', style: TextStyle(color: Colors.black54)),
+               Text('IMEI: ${details['iemi']}', style: TextStyle(color: Colors.black54)),
               const SizedBox(height: 32),
               const Text(
                 'Software Information',
@@ -174,12 +178,12 @@ class DeviceDetails extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 8),
-              const Text('Diagnostic Date: ', style: TextStyle(color: Colors.black54)),
+               Text('Diagnostic Date: ${details['createdAt']}', style: TextStyle(color: Colors.black54)),
               const SizedBox(height: 32),
               Center(
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blueAccent, // Blue accent button
+                    backgroundColor: Color.fromARGB(159, 2, 95, 75), // Blue accent button
                     foregroundColor: Colors.white, // White text
                     padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                     textStyle: const TextStyle(fontSize: 16),

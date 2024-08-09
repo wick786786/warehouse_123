@@ -10,48 +10,46 @@ import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart'; // Add this import
+import 'package:connectivity_plus/connectivity_plus.dart';
 
-class HTTP extends StatefulWidget {
-  const HTTP({super.key});
-
-  @override
-  State<HTTP> createState() => _HTTPState();
+class HttpRequests{
+// Function to check if there is an internet connection
+Future<bool> isConnected() async {
+  var connectivityResult = await Connectivity().checkConnectivity();
+  return connectivityResult != ConnectivityResult.none;
 }
 
-class _HTTPState extends State<HTTP> {
-
-// GET request
-  Future<List<dynamic>> fetchData(String url) async{
-
-      
-
-        final response=await http.get(Uri.parse(url));
-        if(response.statusCode==200)
-          {
-             return jsonDecode(response.body);
-          }
-          else
-          {
-            throw Exception('failed to load');
-          }
-      
-      
+// Function to perform a GET request
+Future<List<dynamic>> fetchData(String url) async {
+  if (await isConnected()) {
+    final response = await http.get(Uri.parse(url));
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Failed to load data');
+    }
+  } else {
+    throw Exception('No internet connection');
   }
+}
 
- // post
- Future<http.Response> post(String url,String key,String value,String data)async
- {
-      return http.post(
-    Uri.parse(url),
-    headers: <String, String>{
-      key:value,
-    },
-    body: jsonEncode(<String, String>{
-      'title': data,
-    }),
-  );
- }
-
+// Function to perform a POST request
+Future<http.Response> post(String url, String key, String value, String data) async {
+  if (await isConnected()) {
+    return http.post(
+      Uri.parse(url),
+      headers: <String, String>{
+        key: value,
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(<String, String>{
+        'title': data,
+      }),
+    );
+  } else {
+    throw Exception('No internet connection');
+  }
+}
  // post by parts 
  Future<void> postVideo() async
   {
@@ -127,8 +125,5 @@ class _HTTPState extends State<HTTP> {
   
 }
 
-  @override
-  Widget build(BuildContext context) {
-    return const Placeholder();
-  }
+ 
 }

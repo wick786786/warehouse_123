@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 class CardF extends StatefulWidget {
   final String title;
   final String color;
@@ -7,29 +7,32 @@ class CardF extends StatefulWidget {
 
   const CardF({super.key, required this.title, required this.color, required this.devices});
 
+ 
   @override
   _CardFState createState() => _CardFState();
 }
 
 class _CardFState extends State<CardF> {
   bool _isHovered = false;
+   
+  
 
   @override
   Widget build(BuildContext context) {
     Color cardColor;
     switch (widget.color.toLowerCase()) {
       case 'red':
-        cardColor = Colors.red[400]!;
+        cardColor = Color(0xFFff7452)!;
         break;
       case 'yellow':
-        cardColor = Colors.yellow[700]!;
+        cardColor = Color(0xff2684ff)!;
         break;
       case 'blue':
-        cardColor = Colors.blue[400]!;
+        cardColor = const Color(0xff57d9a3)!;
         break;
       case 'green':
       default:
-        cardColor = Colors.green[400]!;
+        cardColor = const Color(0XFFffc400)!;
         break;
     }
 
@@ -54,7 +57,7 @@ class _CardFState extends State<CardF> {
                   Icon(Icons.smartphone, color: Colors.white, size: 30),
                   SizedBox(height: 6),
                   Text(
-                    widget.title,
+                  widget.title,
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.white),
                   ),
                   SizedBox(height: 8),

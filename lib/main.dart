@@ -20,7 +20,7 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   Locale _locale = Locale('en', 'US');
-  bool _isDarkMode = true; // Track the theme mode
+  bool _isDarkMode = false; // Track the theme mode
   void _setLocale(Locale locale) {
     setState(() {
       _locale = locale;
@@ -56,4 +56,5 @@ class _MyAppState extends State<MyApp> {
       
     );
   }
+  
 }

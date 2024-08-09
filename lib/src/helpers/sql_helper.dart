@@ -24,6 +24,18 @@ class SqlHelper {
            createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
       )""",
     );
+//     await database.execute("""
+//       CREATE TABLE test_details(
+//       speaker TEXT,
+//       vibration TEXT, 
+//       front_Camera TEXT,
+//       back_camera TEXT,
+
+
+
+//       )
+
+// """);
   }
 
   static Future<sql.Database> db() async {

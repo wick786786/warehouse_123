@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import '../../src/helpers/adb_client.dart';
@@ -35,7 +37,12 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _startTrackingDevices() async {
-    Timer.periodic(Duration(seconds: 2), (timer) async {
+  Process.start('adb', ['track-devices']).then((Process process) {
+    process.stdout.transform(utf8.decoder).listen((String output) async {
+      // The output of 'adb track-devices' will include device connection and disconnection events
+      List<String> lines = output.split('\n');
+
+      // Parse the devices from the output
       List<String> devices = await adbClient.listDevices();
       List<Map<String, String>> deviceDetailsList = [];
 
@@ -65,7 +72,15 @@ class _MyHomePageState extends State<MyHomePage> {
         deviceSet = connectedDevices.map((d) => d['id']!).toSet();
       });
     });
-  }
+
+    process.stderr.transform(utf8.decoder).listen((String error) {
+      print('ADB Error: $error');
+    });
+  }).catchError((e) {
+    print('Failed to start adb process: $e');
+  });
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -183,8 +198,8 @@ class _MyHomePageState extends State<MyHomePage> {
                           ? 2
                           : 3, // Responsive columns
                   crossAxisSpacing: 16.0,
-                  mainAxisSpacing: 16.0,
-                  childAspectRatio: 0.75, // Adjust based on your card aspect ratio
+                  mainAxisSpacing: 20.0,
+                  childAspectRatio: 0.7, // Adjust based on your card aspect ratio
                 ),
                 itemCount: connectedDevices.length,
                 itemBuilder: (context, index) {
