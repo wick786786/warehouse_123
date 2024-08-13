@@ -55,9 +55,9 @@ class _MyHomePageState extends State<MyHomePage> {
           deviceSet.add(deviceId);
           print("Launching $deviceId");
 
-          String apkFileName = 'DemoNext.apk'; // Name of the APK file in Downloads
-          String packageName = 'com.getinstacash.demonext';
-          String mainActivity = 'com.getinstacash.demonext.PageOneActivity';
+          String apkFileName = 'warehouse.apk'; // Name of the APK file in Downloads
+          String packageName = 'com.getinstacash.warehouse';
+          String mainActivity = 'com.getinstacash.warehouse.ui.activity.StartTest';
 
           launch.launchApplication(deviceId, apkFileName, packageName, mainActivity).then((result) {
             print('Command result: $result');

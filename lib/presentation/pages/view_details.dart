@@ -5,15 +5,21 @@ import 'package:path_provider/path_provider.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:open_filex/open_filex.dart';
 import 'dart:io';
-import 'package:adb_client/src/helpers/sql_helper.dart';
 
 class DeviceDetails extends StatelessWidget {
-   const DeviceDetails({super.key, required this.details});
-   final Map<String,dynamic>details;
+  final Map<String, dynamic> details;
+  final List<Map<String, dynamic>> hardwareChecks;
+   final Map<String,String>status={
+    '1':'success',
+    '0':'Fail',
+    '-1':'Skip',
+    '-2':'Not supported'
+   };
+
+  DeviceDetails({super.key, required this.details,required this.hardwareChecks}); //required this.hardwareChecks});
 
   Future<void> _downloadReport() async {
     try {
-      // Step 1: Open Save Dialog and Get the Output File Location
       String? outputFile = await FilePicker.platform.saveFile(
         dialogTitle: 'Choose location to save',
         allowedExtensions: ['pdf'],
@@ -27,7 +33,6 @@ class DeviceDetails extends StatelessWidget {
         return;
       }
 
-      // Step 2: Create the PDF file
       final pdf = pw.Document();
 
       pdf.addPage(
@@ -40,7 +45,7 @@ class DeviceDetails extends StatelessWidget {
                 style: pw.TextStyle(fontSize: 24, fontWeight: pw.FontWeight.bold),
               ),
               pw.SizedBox(height: 16),
-              pw.Text('Diagnose ID: 35270220240718', style: pw.TextStyle(fontSize: 18)),
+              pw.Text('Diagnose ID: ${details['iemi']}', style: pw.TextStyle(fontSize: 18)),
               pw.SizedBox(height: 32),
               pw.Text('Hardware Details', style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold)),
               pw.SizedBox(height: 8),
@@ -51,35 +56,26 @@ class DeviceDetails extends StatelessWidget {
               pw.SizedBox(height: 32),
               pw.Text('Software Information', style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold)),
               pw.SizedBox(height: 8),
-              pw.Text('OS Name: IOS'),
-              pw.Text('OS Version: '),
+              pw.Text('OS Name: ${details['os_name']}'),
+              pw.Text('OS Version: ${details['os_version']}'),
               pw.SizedBox(height: 32),
               pw.Text('Hardware Check', style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold)),
               pw.SizedBox(height: 8),
-              pw.Text('Vibrator: Success'),
-              pw.Text('Rotation: Success'),
-              pw.Text('Battery: Success'),
-              pw.Text('Fingerprint Scanner: Failed'),
-              pw.Text('MIC: Success'),
-              pw.Text('Storage: Success'),
-              pw.Text('Hardware Buttons: Success'),
-              pw.Text('Dead Pixels: Success'),
+              for (var check in hardwareChecks)
+                 pw.Text('${check.keys.first}: ${status[check.values.first]}'),
               pw.SizedBox(height: 32),
               pw.Text('Report Details', style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold)),
               pw.SizedBox(height: 8),
-              pw.Text('Diagnostic Date: '),
+              pw.Text('Diagnostic Date: ${details['createdAt']}'),
             ],
           ),
         ),
       );
 
-      // Step 3: Save the PDF file
       final file = File(outputFile);
       await file.writeAsBytes(await pdf.save());
 
       print('Report downloaded to $outputFile');
-
-      // Step 4: Open the downloaded file
       await OpenFilex.open(outputFile);
 
     } catch (error) {
@@ -91,17 +87,15 @@ class DeviceDetails extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
-        backgroundColor: Color.fromARGB(255, 222, 238, 226), // Set light blue background
+        backgroundColor: const Color.fromARGB(255, 222, 238, 226),
         appBar: AppBar(
-          //title: const Text('Device Diagnostic Report'),
           leading: IconButton(
-            icon: Icon(Icons.arrow_back),
+            icon: const Icon(Icons.arrow_back),
             onPressed: () {
               Navigator.pop(context);
             },
-            
           ),
-          backgroundColor:Color.fromARGB(255, 222, 238, 226) ,
+          backgroundColor: const Color.fromARGB(255, 222, 238, 226),
         ),
         body: SingleChildScrollView(
           padding: const EdgeInsets.all(16.0),
@@ -113,15 +107,15 @@ class DeviceDetails extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
-                  color: Colors.black87, // Dark text for contrast
+                  color: Colors.black87,
                 ),
               ),
               const SizedBox(height: 16),
-               Text(
-                'Diagnose ID: ${details['iemi']} ',
+              Text(
+                'Diagnose ID: ${details['iemi']}',
                 style: const TextStyle(
                   fontSize: 18,
-                  color: Colors.black54, // Lighter text for less emphasis
+                  color: Colors.black54,
                 ),
               ),
               const SizedBox(height: 32),
@@ -134,10 +128,10 @@ class DeviceDetails extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 8),
-               Text('Manufacturer: ${details['manufacturer']}', style: TextStyle(color: Colors.black54)),
+              Text('Manufacturer: ${details['manufacturer']}', style: const TextStyle(color: Colors.black54)),
               const Text('Type: Smartphone', style: TextStyle(color: Colors.black54)),
-               Text('Model: ${details['model']}', style: TextStyle(color: Colors.black54)),
-               Text('IMEI: ${details['iemi']}', style: TextStyle(color: Colors.black54)),
+              Text('Model: ${details['model']}', style: const TextStyle(color: Colors.black54)),
+              Text('IMEI: ${details['iemi']}', style: const TextStyle(color: Colors.black54)),
               const SizedBox(height: 32),
               const Text(
                 'Software Information',
@@ -148,8 +142,8 @@ class DeviceDetails extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 8),
-              const Text('OS Name: IOS', style: TextStyle(color: Colors.black54)),
-              const Text('OS Version: ', style: TextStyle(color: Colors.black54)),
+              Text('OS Name: ${details['os_name']}', style: const TextStyle(color: Colors.black54)),
+              Text('OS Version: ${details['os_version']}', style: const TextStyle(color: Colors.black54)),
               const SizedBox(height: 32),
               const Text(
                 'Hardware Check',
@@ -160,14 +154,8 @@ class DeviceDetails extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 8),
-              const Text('Vibrator: Success', style: TextStyle(color: Colors.black54)),
-              const Text('Rotation: Success', style: TextStyle(color: Colors.black54)),
-              const Text('Battery: Success', style: TextStyle(color: Colors.black54)),
-              const Text('Fingerprint Scanner: Failed', style: TextStyle(color: Colors.black54)),
-              const Text('MIC: Success', style: TextStyle(color: Colors.black54)),
-              const Text('Storage: Success', style: TextStyle(color: Colors.black54)),
-              const Text('Hardware Buttons: Success', style: TextStyle(color: Colors.black54)),
-              const Text('Dead Pixels: Success', style: TextStyle(color: Colors.black54)),
+               for (var check in hardwareChecks)
+                 Text('${check.keys.first}: ${status[check.values.first]}', style: const TextStyle(color: Colors.black54)),
               const SizedBox(height: 32),
               const Text(
                 'Report Details',
@@ -178,13 +166,13 @@ class DeviceDetails extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 8),
-               Text('Diagnostic Date: ${details['createdAt']}', style: TextStyle(color: Colors.black54)),
+              Text('Diagnostic Date: ${details['createdAt']}', style: const TextStyle(color: Colors.black54)),
               const SizedBox(height: 32),
               Center(
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Color.fromARGB(159, 2, 95, 75), // Blue accent button
-                    foregroundColor: Colors.white, // White text
+                    backgroundColor: const Color.fromARGB(159, 2, 95, 75),
+                    foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                     textStyle: const TextStyle(fontSize: 16),
                   ),

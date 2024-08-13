@@ -10,6 +10,7 @@ import 'package:adb_client/src/core/constants.dart';
 import 'presentation/pages/login_page.dart';
 void main() {
   SqlHelper.initializeDatabaseFactory();
+  
   runApp(MyApp());
 }
 

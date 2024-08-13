@@ -38,6 +38,9 @@ class AdbClient {
     final imeiOutput = await executeShellCommand(deviceId, 'service call iphonesubinfo 1 s16 com.android.shell | cut -c 50-64 | tr -d \'.[:space:]\'');
     final mdmStatus=await checkMdmStatus(deviceId);
     final batterylevel=await executeShellCommand(deviceId, 'dumpsys battery | grep level');
+    final ram = await getApproximateRam(deviceId);
+    final rom = await getApproximateRom(deviceId);
+    
     return {
       'model': model,
       'manufacturer': manufacturer,
@@ -45,18 +48,12 @@ class AdbClient {
       'serialNumber': serialNumber,
       'imeiOutput': imeiOutput.replaceAll("'", ''),
       'mdm_status': mdmStatus,
-      'batterylevel':batterylevel,
+      'batterylevel': batterylevel,
+      'ram': ram,
+      'rom': rom,
     };
   }
 
-  // Function to check for device or profile owner
-  /*
-   Purpose: This function checks if a device owner is set on the Android device. 
-   Having a device owner is a key indicator of an MDM presence since it represents 
-   the highest level of control an app can have over a device.
-   Sufficiency: It’s a critical check. If a device owner is found, it 
-   suggests the device is managed by an MDM.
-  */
   Future<bool> checkDeviceOwner(String deviceId) async {
     final owner = await executeShellCommand(deviceId, 'dpm list-owners | grep "Device Owner"');
     if (owner.isNotEmpty) {
@@ -68,7 +65,6 @@ class AdbClient {
     }
   }
 
-  // Function to check for active device admins
   Future<bool> checkActiveAdmins(String deviceId) async {
     final admins = await executeShellCommand(deviceId, 'dumpsys device_policy | grep "Active admin"');
     if (admins.isNotEmpty) {
@@ -80,7 +76,6 @@ class AdbClient {
     }
   }
 
-  // Function to check for managed profiles
   Future<bool> checkManagedProfiles(String deviceId) async {
     final profiles = await executeShellCommand(deviceId, 'pm list packages -e');
     if (profiles.isNotEmpty) {
@@ -92,7 +87,6 @@ class AdbClient {
     }
   }
 
-  // Perform checks and determine final MDM status
   Future<String> checkMdmStatus(String deviceId) async {
     print("Checking MDM Status...");
 
@@ -103,7 +97,80 @@ class AdbClient {
     if (deviceOwnerStatus || activeAdminsStatus || managedProfilesStatus) {
       return "true";
     } else {
-       return "false";
+      return "false";
     }
+  }
+
+  Future<String> getApproximateRam(String deviceId) async {
+    final memInfo = await executeShellCommand(deviceId, 'cat /proc/meminfo | grep MemTotal');
+    if (memInfo.isEmpty) {
+      return 'Unknown';
+    }
+    final memTotalKb = int.tryParse(memInfo.split(RegExp(r'\s+'))[1] ?? '0') ?? 0;
+    final memTotalGb = (memTotalKb / (1024 * 1024)).toStringAsFixed(2);
+    final approximateRam = _roundToStandardSize(double.parse(memTotalGb));
+    return '${approximateRam} GB';
+  }
+
+  Future<String> getApproximateRom(String deviceId) async {
+  final storageInfo = await executeShellCommand(deviceId, 'df -h | grep /data');
+  if ((storageInfo).length==0) {
+    return 'Unknown';
+  }
+  
+  final sizeParts = storageInfo.split(RegExp(r'\s+'));
+  if (sizeParts.length < 4) {
+    return 'Unknown';
+  }
+
+  final totalSizeStr = sizeParts[1].replaceAll(RegExp(r'[A-Za-z]'), '');
+  final usedSizeStr = sizeParts[2].replaceAll(RegExp(r'[A-Za-z]'), '');
+  final availableSizeStr = sizeParts[3].replaceAll(RegExp(r'[A-Za-z]'), '');
+
+  final totalSizeGB = _parseSizeToGB(totalSizeStr, sizeParts[1]);
+  final usedSizeGB = _parseSizeToGB(usedSizeStr, sizeParts[2]);
+  final availableSizeGB = _parseSizeToGB(availableSizeStr, sizeParts[3]);
+
+  final combinedSizeGB = totalSizeGB + usedSizeGB + availableSizeGB;
+
+  return _approximateSize(combinedSizeGB);
+}
+
+double _parseSizeToGB(String size, String sizeWithUnit) {
+  final unit = sizeWithUnit.replaceAll(RegExp(r'[0-9]'), '');
+  final value = double.tryParse(size) ?? 0.0;
+  
+  switch (unit) {
+    case 'T':
+      return value * 1024; // Terabytes to GB
+    case 'G':
+      return value; // Gigabytes
+    case 'M':
+      return value / 1024; // Megabytes to GB
+    case 'K':
+      return value / (1024 * 1024); // Kilobytes to GB
+    default:
+      return value; // Assume GB if unit is not specified
+  }
+}
+
+String _approximateSize(double sizeGB) {
+  const sizes = [32, 64, 128, 256, 512, 1024]; // Sizes in GB
+  for (var standardSize in sizes) {
+    if (sizeGB <= standardSize) {
+      return '${standardSize}GB';
+    }
+  }
+  return '> ${sizes.last}GB'; // For sizes larger than the largest standard size
+}
+
+  double _roundToStandardSize(double sizeInGb) {
+    const standardSizes = [2, 3, 4, 6, 8, 12, 16, 32, 64, 128, 256, 512, 1024];
+    for (var size in standardSizes) {
+      if (sizeInGb <= size) {
+        return size.toDouble();
+      }
+    }
+    return sizeInGb;
   }
 }

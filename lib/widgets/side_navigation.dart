@@ -22,6 +22,7 @@ class _SideNavigationState extends State<SideNavigation> {
     final TextStyle listItemStyle = theme.textTheme.bodyLarge ?? TextStyle();
 
     return Drawer(
+      backgroundColor: sidebarColor,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -34,7 +35,7 @@ class _SideNavigationState extends State<SideNavigation> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Container(
-                  padding: EdgeInsets.all(20),
+                  padding: const EdgeInsets.all(20),
                   child: Icon(Icons.person, color: theme.colorScheme.onPrimary, size: 50),
                 ),
                 Center(
@@ -64,7 +65,7 @@ class _SideNavigationState extends State<SideNavigation> {
                     );
                   },
                 ),
-                SizedBox(height: 28),
+                const SizedBox(height: 28),
                 _buildNavItem(
                   icon: Icons.hourglass_empty,
                   text: AppLocalizations.of(context)!.underProcess,
@@ -83,7 +84,6 @@ class _SideNavigationState extends State<SideNavigation> {
           ),
         ],
       ),
-      backgroundColor: sidebarColor,
     );
   }
 
@@ -122,7 +122,7 @@ class _SideNavigationState extends State<SideNavigation> {
                     : [],
               ),
             ),
-            SizedBox(height: 6),
+            const SizedBox(height: 6),
             Text(
               text,
               style: listItemStyle,

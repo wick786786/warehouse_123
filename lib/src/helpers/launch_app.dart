@@ -10,7 +10,7 @@ class LaunchApp extends StatelessWidget {
 
   Future<String> launchApplication(String deviceId, String apkFileName, String packageName, String mainActivity) async {
   // Default path for APK in Downloads directory
-  String apkPath = 'C:\\Users\\thesa\\Downloads\\DemoNext.apk';
+  String apkPath = 'C:\\Users\\thesa\\Downloads\\warehouse.apk';
 
 
   // Check if the app is installed

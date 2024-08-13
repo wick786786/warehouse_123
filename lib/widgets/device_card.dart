@@ -74,6 +74,15 @@ class _DeviceCardState extends State<DeviceCard> {
   void _downloadReport() {
     // Implement your logic for downloading the report here
   }
+  String safeSubstring(String? value, int length) {
+  if (value == null || value.length < length) {
+    return value ?? 'N/A';
+  }
+  return value.substring(0, min(length,6));
+}
+
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -100,7 +109,7 @@ return Container(
               Icon(Icons.android, color: primaryColor),
               SizedBox(width: 8),
               Text(
-               '${widget.device['manufacturer']?.substring(0, 4) ?? 'N/A'} ${widget.device['model']?.substring(0, 4) ?? 'N/A'}',
+               safeSubstring(widget.device['manufacturer'],widget.device['manufacturer']!.length )+" "+safeSubstring(widget.device['model'], widget.device['model']!.length),
                 style: deviceCardTitle,
               ),
             ],
@@ -134,14 +143,14 @@ return Container(
               Column(
                 children: [
                   Icon(Icons.battery_6_bar_rounded,color:primaryColor,),
-                  Text(widget.device['batterylevel']!.substring(7,widget.device['batterylevel']!.length) ?? 'N/A'),
+                  Text(widget.device['batterylevel']!.substring(min(widget.device['batterylevel']!.length,7),widget.device['batterylevel']!.length) ?? 'N/A'),
                 ],
               ),
               SizedBox(width:12),
                Column(
                 children: [
                   //Icon(Icons.battery_6_bar_rounded,color:primaryColor,),
-                  Text('12 GB/256 GB',style:TextStyle(fontSize: 15),),
+                  Text('${widget.device['ram']}/${widget.device['rom']}',style:TextStyle(fontSize: 15),),
                   Text('RAM/ROM'),
                 ],
               ),
@@ -153,7 +162,7 @@ return Container(
             animation: true,
             animationDuration: 1000,
             lineHeight: 23.0,
-            percent: percent,
+            percent: min(percent,1),
             center: Text(
               "${(percent * 100).toStringAsFixed(1)}%",
               style: TextStyle(color: whiteColor, fontSize: 12),
@@ -162,17 +171,17 @@ return Container(
             progressColor: primaryColor,
           ),
           SizedBox(height: 15),
-          if (percent >= 1.0)
-            Row(
-              children: [
-                Icon(Icons.done, color: Colors.green),
-                SizedBox(width: 8),
-                ElevatedButton(
-                  onPressed: _downloadReport,
-                  child: Text('Download Report'),
-                ),
-              ],
-            ),
+          // if (percent >= 1.0)
+          //   Row(
+          //     children: [
+          //       Icon(Icons.done, color: Colors.green),
+          //       SizedBox(width: 8),
+          //       ElevatedButton(
+          //         onPressed: _downloadReport,
+          //         child: Text('Download Report'),
+          //       ),
+          //     ],
+          //   ),
         ],
       ),
     ),

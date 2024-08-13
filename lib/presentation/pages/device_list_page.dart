@@ -1,10 +1,15 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:process_run/stdio.dart';
 import 'package:sqflite/sqflite.dart';
 import 'view_details.dart';
 import '../../widgets/cards.dart';
 import '../../src/core/constants.dart';
 import '../../src/helpers/sql_helper.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
 class DeviceListPage extends StatefulWidget {
   @override
   _DeviceListPageState createState() => _DeviceListPageState();
@@ -13,21 +18,38 @@ class DeviceListPage extends StatefulWidget {
 class _DeviceListPageState extends State<DeviceListPage> {
   List<Map<String, dynamic>> allDevices = [];
   List<Map<String, dynamic>> filteredDevices = [];
+  late List<Map<String, dynamic>> hardwareChecks;
 
   TextEditingController searchController = TextEditingController();
-
-  void _refreshList() async {
-    final data = await SqlHelper.getItems();
-    setState(() {
-      allDevices = data;
-      filteredDevices.addAll(allDevices);
-    });
-  }
 
   @override
   void initState() {
     super.initState();
     _refreshList();
+  }
+
+  void _refreshList() async {
+    final data = await SqlHelper.getItems();
+    setState(() {
+      allDevices = data;
+      filteredDevices.clear();
+      filteredDevices.addAll(allDevices);
+    });
+  }
+
+  Future<void> _loadHardwareChecks(String deviceId) async {
+    final fileName = 'logcat_results_$deviceId.json';
+     print(" fileName:$fileName");
+    final file = File(fileName);
+
+    if (await file.exists()) {
+      final jsonContent = await file.readAsString();
+      print(" json content :$jsonContent");
+      hardwareChecks = List<Map<String, dynamic>>.from(jsonDecode(jsonContent));
+      print("hardwarecheck 1 :$hardwareChecks");
+    } else {
+      hardwareChecks = [];
+    }
   }
 
   void filterSearchResults(String query) {
@@ -63,13 +85,12 @@ class _DeviceListPageState extends State<DeviceListPage> {
     final Color onSurfaceColor = theme.colorScheme.onSurface;
     final TextStyle titleStyle = theme.textTheme.titleLarge?.copyWith(color: theme.colorScheme.onPrimary) ?? TextStyle();
     final TextStyle sectionTitleStyle = theme.textTheme.titleMedium?.copyWith(color: theme.colorScheme.onSurface) ?? TextStyle();
-   
 
     return Scaffold(
       appBar: AppBar(
         title: Text(
           AppLocalizations.of(context)!.list,
-          style:titleStyle,
+          style: titleStyle,
         ),
         backgroundColor: primaryColor,
         actions: [
@@ -148,13 +169,6 @@ class _DeviceListPageState extends State<DeviceListPage> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  // Expanded(
-                  //   flex: 0,
-                  //   child: Text(
-                  //     '#',
-                  //     style: sectionTitleStyle.copyWith(fontSize: 15),
-                  //   ),
-                  // ),
                   Expanded(
                     flex: 3,
                     child: Text(
@@ -192,11 +206,11 @@ class _DeviceListPageState extends State<DeviceListPage> {
                 itemCount: filteredDevices.length,
                 itemBuilder: (context, index) {
                   return _buildDeviceRow(
-                    index + 1, // Auto-numbering starting from 1
+                    index + 1,
                     filteredDevices[index]['manufacturer'] + " " + filteredDevices[index]['model']!,
-                    'assets/device2.jpg', // Image asset path
+                    'assets/device2.jpg',
                     filteredDevices[index]["createdAt"],
-                    filteredDevices[index]
+                    filteredDevices[index],
                   );
                 },
               ),
@@ -206,77 +220,95 @@ class _DeviceListPageState extends State<DeviceListPage> {
       ),
     );
   }
-Widget _buildDeviceRow(int index, String phone, String imagePath, String date,Map<String,dynamic>details) {
-  final ThemeData theme = Theme.of(context);
-  final Color darkGrey = theme.colorScheme.onSurface;
-  final Color rowColor = theme.brightness == Brightness.dark ? theme.colorScheme.surface : Colors.white;
 
-  return Container(
-    margin: EdgeInsets.only(bottom: 8),
-    padding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-    decoration: BoxDecoration(
-      color: rowColor,
-      borderRadius: BorderRadius.circular(8),
-      boxShadow: [
-        BoxShadow(
-          color: darkGrey.withOpacity(0.1),
-          spreadRadius: 1,
-          blurRadius: 2,
-          offset: Offset(0, 1),
-        ),
-      ],
-    ),
-    child: Row(
-      children: [
-        ClipRRect(
-          borderRadius: BorderRadius.circular(8),
-          child: Image.asset(
-            imagePath,
-            width: 50,
-            height: 50,
-            fit: BoxFit.cover,
+  Widget _buildDeviceRow(int index, String phone, String imagePath, String date, Map<String, dynamic> details) {
+    final ThemeData theme = Theme.of(context);
+    final Color darkGrey = theme.colorScheme.onSurface;
+    final Color rowColor = theme.brightness == Brightness.dark ? theme.colorScheme.surface : Colors.white;
+
+    return Container(
+      margin: EdgeInsets.only(bottom: 8),
+      padding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+      decoration: BoxDecoration(
+        color: rowColor,
+        borderRadius: BorderRadius.circular(8),
+        boxShadow: [
+          BoxShadow(
+            color: darkGrey.withOpacity(0.1),
+            spreadRadius: 1,
+            blurRadius: 2,
+            offset: Offset(0, 1),
           ),
-        ),
-        SizedBox(width: 12),
-        Expanded(
-          flex: 3,
-          child: Text(
-            '$phone',
-            style: TextStyle(fontSize: 14, color: darkGrey),
+        ],
+      ),
+      child: Row(
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: Image.asset(
+              imagePath,
+              width: 50,
+              height: 50,
+              fit: BoxFit.cover,
+            ),
           ),
-        ),
-        Expanded(
-          flex: 2,
-          child: Text(
-            date.substring(0,11),
-            style: TextStyle(fontSize: 14, color: darkGrey),
+          SizedBox(width: 12),
+          Expanded(
+            flex: 3,
+            child: Text(
+              '$phone',
+              style: TextStyle(fontSize: 14, color: darkGrey),
+            ),
           ),
-        ),
-        Expanded(
-          flex: 1,
-          child: Text(
-            'A', // Placeholder for the Grade column
-            style: TextStyle(fontSize: 14, color: darkGrey),
+          Expanded(
+            flex: 2,
+            child: Text(
+              date.substring(0, 11),
+              style: TextStyle(fontSize: 14, color: darkGrey),
+            ),
           ),
-        ),
-        Expanded(
-          flex: 2,
-          child: TextButton(
-            child:Text('view Details'),
-             // Placeholder for the Action column
-            onPressed:()
-            { 
-               Navigator.push(
+          Expanded(
+            flex: 1,
+            child: Text(
+              'A',
+              style: TextStyle(fontSize: 14, color: darkGrey),
+            ),
+          ),
+          Expanded(
+            flex: 2,
+            child: Row(
+              children: [
+                TextButton(
+                  child: Text('View Details'),
+                  onPressed: () async {
+                    final deviceId = details['id'].toString();
+                    print('details ${details}');
+                    print('device id :${deviceId}');
+                    await _loadHardwareChecks(details['sno']);
+                    print('hardware chrcks: $hardwareChecks');
+
+                    Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => DeviceDetails(details:details)),
+                      MaterialPageRoute(
+                        builder: (context) => DeviceDetails(details: details, hardwareChecks: hardwareChecks),
+                      ),
                     );
-             } ,
-            //style: TextStyle(fontSize: 14, color: darkGrey),
+                  },
+                ),
+                SizedBox(width: 30),
+                IconButton(
+                  onPressed: () async {
+                    print('Debug: Delete item with id ${details['id']}');
+                    await SqlHelper.deleteItem(details['id']);
+                    _refreshList(); // Refresh the list after deletion
+                  },
+                  icon: Icon(Icons.delete),
+                ),
+              ],
+            ),
           ),
-        ),
-      ],
-    ),
-  );
-}
-
+        ],
+      ),
+    );
+  }
 }
