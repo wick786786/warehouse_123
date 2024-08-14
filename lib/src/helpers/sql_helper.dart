@@ -48,16 +48,42 @@ class SqlHelper {
 
   // Function to insert a new item into the 'info' table
   static Future<int> createItem(String? manufacturer, String? model, String? iemi, String? sno) async {
-    final db = await SqlHelper.db();
+  final db = await SqlHelper.db();
+  
+  // Check if a row with the same iemi or sno already exists
+  final List<Map<String, dynamic>> existingItem = await db.query(
+    'info',
+    where: 'iemi = ? OR sno = ?',
+    whereArgs: [iemi, sno],
+  );
+
+  // If the item exists, update it; otherwise, insert a new row
+  if (existingItem.isNotEmpty) {
+    final id = existingItem.first['id'];
     final data = {
       'manufacturer': manufacturer,
       'model': model,
       'iemi': iemi,
       'sno': sno,
     };
-    final id = await db.insert('info', data, conflictAlgorithm: sql.ConflictAlgorithm.replace);
-    return id;
+    return await db.update(
+      'info',
+      data,
+      where: 'id = ?',
+      whereArgs: [id],
+      conflictAlgorithm: sql.ConflictAlgorithm.replace,
+    );
+  } else {
+    final data = {
+      'manufacturer': manufacturer,
+      'model': model,
+      'iemi': iemi,
+      'sno': sno,
+    };
+    return await db.insert('info', data, conflictAlgorithm: sql.ConflictAlgorithm.replace);
   }
+}
+
 
   // Function to retrieve all items from the 'info' table
   static Future<List<Map<String, dynamic>>> getItems() async {

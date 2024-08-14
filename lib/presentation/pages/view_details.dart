@@ -35,42 +35,121 @@ class DeviceDetails extends StatelessWidget {
 
       final pdf = pw.Document();
 
+      //final pdf = pw.Document();
+
       pdf.addPage(
         pw.Page(
-          build: (pw.Context context) => pw.Column(
-            crossAxisAlignment: pw.CrossAxisAlignment.start,
-            children: [
-              pw.Text(
-                'Device Diagnostic Report',
-                style: pw.TextStyle(fontSize: 24, fontWeight: pw.FontWeight.bold),
-              ),
-              pw.SizedBox(height: 16),
-              pw.Text('Diagnose ID: ${details['iemi']}', style: pw.TextStyle(fontSize: 18)),
-              pw.SizedBox(height: 32),
-              pw.Text('Hardware Details', style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold)),
-              pw.SizedBox(height: 8),
-              pw.Text('Manufacturer: ${details['manufacturer']}'),
-              pw.Text('Type: Smartphone'),
-              pw.Text('Model: ${details['model']}'),
-              pw.Text('IMEI: ${details['iemi']}'),
-              pw.SizedBox(height: 32),
-              pw.Text('Software Information', style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold)),
-              pw.SizedBox(height: 8),
-              pw.Text('OS Name: ${details['os_name']}'),
-              pw.Text('OS Version: ${details['os_version']}'),
-              pw.SizedBox(height: 32),
-              pw.Text('Hardware Check', style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold)),
-              pw.SizedBox(height: 8),
-              for (var check in hardwareChecks)
-                 pw.Text('${check.keys.first}: ${status[check.values.first]}'),
-              pw.SizedBox(height: 32),
-              pw.Text('Report Details', style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold)),
-              pw.SizedBox(height: 8),
-              pw.Text('Diagnostic Date: ${details['createdAt']}'),
-            ],
+          build: (pw.Context context) => pw.Padding(
+            padding: const pw.EdgeInsets.all(24),
+            child: pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              children: [
+                pw.Center(
+                  child: pw.Text(
+                    'Device Diagnostic Report',
+                    style: pw.TextStyle(
+                      fontSize: 26,
+                      fontWeight: pw.FontWeight.bold,
+                      color: PdfColors.black,
+                    ),
+                  ),
+                ),
+                pw.SizedBox(height: 24),
+                pw.Text(
+                  'Diagnose ID: ${details['iemi']}',
+                  style: pw.TextStyle(
+                    fontSize: 18,
+                    color: PdfColors.black,
+                  ),
+                ),
+                pw.Divider(height: 32, thickness: 2),
+                pw.Text(
+                  'Hardware Details',
+                  style: pw.TextStyle(
+                    fontSize: 22,
+                    fontWeight: pw.FontWeight.bold,
+                    color: PdfColors.black,
+                  ),
+                ),
+                pw.SizedBox(height: 12),
+                pw.Text('Manufacturer: ${details['manufacturer']}', style: pw.TextStyle(color: PdfColors.black)),
+                pw.Text('Type: Smartphone', style: pw.TextStyle(color: PdfColors.black)),
+                pw.Text('Model: ${details['model']}', style: pw.TextStyle(color: PdfColors.black)),
+                pw.Text('IMEI: ${details['iemi']}', style: pw.TextStyle(color: PdfColors.black)),
+                pw.Divider(height: 32, thickness: 2),
+                pw.Text(
+                  'Software Information',
+                  style: pw.TextStyle(
+                    fontSize: 22,
+                    fontWeight: pw.FontWeight.bold,
+                    color: PdfColors.black,
+                  ),
+                ),
+                pw.SizedBox(height: 12),
+                pw.Text('OS Name: Android ', style: pw.TextStyle(color: PdfColors.black)),
+                pw.Text('OS Version: 14', style: pw.TextStyle(color: PdfColors.black)),
+                pw.Divider(height: 32, thickness: 2),
+                pw.Text(
+                  'Hardware Check',
+                  style: pw.TextStyle(
+                    fontSize: 22,
+                    fontWeight: pw.FontWeight.bold,
+                    color: PdfColors.black,
+                  ),
+                ),
+                pw.SizedBox(height: 12),
+                pw.Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: hardwareChecks.map((check) {
+                    final key = check.keys.first;
+                    final value = check.values.first.toString();
+                    PdfColor color;
+
+                    if (value == '1') {
+                      color = PdfColors.green;
+                    } else if (value == '0') {
+                      color = PdfColors.red;
+                    } else if (value == '-1') {
+                      color = PdfColors.yellow800;
+                    } else {
+                      color = PdfColors.grey;
+                    }
+
+                    return pw.Container(
+                      padding: const pw.EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+                      decoration: pw.BoxDecoration(
+                        border: pw.Border.all(color: color, width: 1),
+                        borderRadius: const pw.BorderRadius.all(pw.Radius.circular(5)),
+                      ),
+                      child: pw.Text(
+                        '$key: ${status[value]}',
+                        style: pw.TextStyle(
+                          color: color,
+                          fontWeight: pw.FontWeight.bold,
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+                pw.Divider(height: 32, thickness: 2),
+                pw.Text(
+                  'Report Details',
+                  style: pw.TextStyle(
+                    fontSize: 22,
+                    fontWeight: pw.FontWeight.bold,
+                    color: PdfColors.black,
+                  ),
+                ),
+                pw.SizedBox(height: 12),
+                pw.Text('Diagnostic Date: ${details['createdAt']}', style: pw.TextStyle(color: PdfColors.black)),
+              ],
+            ),
           ),
         ),
       );
+
+
 
       final file = File(outputFile);
       await file.writeAsBytes(await pdf.save());
@@ -87,7 +166,7 @@ class DeviceDetails extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
-        backgroundColor: const Color.fromARGB(255, 222, 238, 226),
+        backgroundColor: const Color(0xFFF7F9FC),
         appBar: AppBar(
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
@@ -95,89 +174,165 @@ class DeviceDetails extends StatelessWidget {
               Navigator.pop(context);
             },
           ),
-          backgroundColor: const Color.fromARGB(255, 222, 238, 226),
+          backgroundColor:const Color(0xFF4CAF50),
+          title: const Text(
+            'Diagnostic Report',
+            style: TextStyle(color: Colors.white, fontSize: 20),
+          ),
+          centerTitle: true,
         ),
         body: SingleChildScrollView(
           padding: const EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Device Diagnostic Report',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
+              const Center(
+                child: Text(
+                  'Device Diagnostic Report',
+                  style: TextStyle(
+                    fontSize: 26,
+                    fontWeight: FontWeight.bold,
+                    color:Colors.black87,
+                  ),
                 ),
               ),
-              const SizedBox(height: 16),
-              Text(
-                'Diagnose ID: ${details['iemi']}',
-                style: const TextStyle(
-                  fontSize: 18,
-                  color: Colors.black54,
+              const SizedBox(height: 24),
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: const Icon(Icons.info_outline, color: Color(0xFF0277BD), size: 32),
+                title: Text(
+                  'Diagnose ID: ${details['iemi']}',
+                  style: const TextStyle(fontSize: 18, color: Colors.black87),
                 ),
               ),
               const SizedBox(height: 32),
               const Text(
                 'Hardware Details',
                 style: TextStyle(
-                  fontSize: 20,
+                  fontSize: 22,
                   fontWeight: FontWeight.bold,
                   color: Colors.black87,
                 ),
               ),
               const SizedBox(height: 8),
-              Text('Manufacturer: ${details['manufacturer']}', style: const TextStyle(color: Colors.black54)),
-              const Text('Type: Smartphone', style: TextStyle(color: Colors.black54)),
-              Text('Model: ${details['model']}', style: const TextStyle(color: Colors.black54)),
-              Text('IMEI: ${details['iemi']}', style: const TextStyle(color: Colors.black54)),
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: const Icon(Icons.build_circle, color: Color(0xFF0277BD)),
+                title: Text('Manufacturer: ${details['manufacturer']}', style: const TextStyle(color: Colors.black87)),
+              ),
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: const Icon(Icons.device_unknown, color:const Color(0xFF0277BD)),
+                title: const Text('Type: Smartphone', style: TextStyle(color: Colors.black87)),
+              ),
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: const Icon(Icons.model_training, color: Color(0xFF0277BD)),
+                title: Text('Model: ${details['model']}', style: const TextStyle(color: Colors.black87)),
+              ),
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: const Icon(Icons.confirmation_number, color: Color(0xFF0277BD)),
+                title: Text('IMEI: ${details['iemi']}', style: const TextStyle(color: Colors.black87)),
+              ),
               const SizedBox(height: 32),
               const Text(
                 'Software Information',
                 style: TextStyle(
-                  fontSize: 20,
+                  fontSize: 22,
                   fontWeight: FontWeight.bold,
                   color: Colors.black87,
                 ),
               ),
               const SizedBox(height: 8),
-              Text('OS Name: ${details['os_name']}', style: const TextStyle(color: Colors.black54)),
-              Text('OS Version: ${details['os_version']}', style: const TextStyle(color: Colors.black54)),
+              const ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: Icon(Icons.phone_android, color: Color(0xFF0277BD)),
+                title: Text('OS Name: Android', style: TextStyle(color: Colors.black87)),
+              ),
+              const ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: Icon(Icons.system_update_alt, color: Color(0xFF0277BD)),
+                title: Text('OS Version: 14', style: TextStyle(color: Colors.black87)),
+              ),
               const SizedBox(height: 32),
               const Text(
                 'Hardware Check',
                 style: TextStyle(
-                  fontSize: 20,
+                  fontSize: 22,
                   fontWeight: FontWeight.bold,
                   color: Colors.black87,
                 ),
               ),
               const SizedBox(height: 8),
-               for (var check in hardwareChecks)
-                 Text('${check.keys.first}: ${status[check.values.first]}', style: const TextStyle(color: Colors.black54)),
+              Column(
+                children: hardwareChecks.map((check) {
+                  String key = check.keys.first;
+                  String value = check.values.first.toString();
+                  Color textColor;
+                  IconData icon;
+                  Color iconColor;
+
+                  switch (value) {
+                    case '1':
+                      textColor = Colors.green;
+                      icon = Icons.check_circle;
+                      iconColor = Colors.green;
+                      break;
+                    case '0':
+                      textColor = Colors.red;
+                      icon = Icons.cancel;
+                      iconColor = Colors.red;
+                      break;
+                    case '-1':
+                      textColor = Colors.yellow[800]!;
+                      icon = Icons.warning;
+                      iconColor = Colors.yellow[800]!;
+                      break;
+                    default:
+                      textColor = Colors.grey;
+                      icon = Icons.block;
+                      iconColor = Colors.grey;
+                      break;
+                  }
+
+                  return ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    leading: Icon(icon, color: iconColor),
+                    title: Text(
+                      '$key: ${status[value]}',
+                      style: TextStyle(color: textColor),
+                    ),
+                  );
+                }).toList(),
+              ),
               const SizedBox(height: 32),
               const Text(
                 'Report Details',
                 style: TextStyle(
-                  fontSize: 20,
+                  fontSize: 22,
                   fontWeight: FontWeight.bold,
                   color: Colors.black87,
                 ),
               ),
               const SizedBox(height: 8),
-              Text('Diagnostic Date: ${details['createdAt']}', style: const TextStyle(color: Colors.black54)),
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: const Icon(Icons.calendar_today, color: Color(0xFF0277BD)),
+                title: Text('Diagnostic Date: ${details['createdAt']}', style: const TextStyle(color: Colors.black87)),
+              ),
               const SizedBox(height: 32),
               Center(
-                child: ElevatedButton(
+                child: ElevatedButton.icon(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color.fromARGB(159, 2, 95, 75),
+                    backgroundColor: Color(0xFF4CAF50),
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                     textStyle: const TextStyle(fontSize: 16),
                   ),
                   onPressed: _downloadReport,
-                  child: const Text('Download Report'),
+                  icon: const Icon(Icons.download),
+                  label: const Text('Download Report'),
                 ),
               ),
             ],
@@ -186,4 +341,7 @@ class DeviceDetails extends StatelessWidget {
       ),
     );
   }
+  
+  
+
 }

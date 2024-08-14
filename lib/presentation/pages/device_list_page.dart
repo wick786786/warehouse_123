@@ -92,8 +92,10 @@ class _DeviceListPageState extends State<DeviceListPage> {
           AppLocalizations.of(context)!.list,
           style: titleStyle,
         ),
+        
         backgroundColor: primaryColor,
         actions: [
+          
           Container(
             width: 200,
             height: 40,
@@ -135,6 +137,12 @@ class _DeviceListPageState extends State<DeviceListPage> {
             ),
           ),
         ],
+         leading: IconButton(
+            icon: const Icon(Icons.arrow_back,color: Colors.white,),
+            onPressed: () {
+              Navigator.pop(context);
+            },
+          ),
       ),
       backgroundColor: backgroundColor,
       body: Padding(
@@ -296,14 +304,41 @@ class _DeviceListPageState extends State<DeviceListPage> {
                   },
                 ),
                 SizedBox(width: 30),
-                IconButton(
-                  onPressed: () async {
-                    print('Debug: Delete item with id ${details['id']}');
-                    await SqlHelper.deleteItem(details['id']);
-                    _refreshList(); // Refresh the list after deletion
-                  },
-                  icon: Icon(Icons.delete),
-                ),
+               IconButton(
+  onPressed: () async {
+    bool? confirmDelete = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Confirm Deletion'),
+          content: Text('Are you sure you want to delete this item?'),
+          actions: <Widget>[
+            TextButton(
+              child: Text('No'),
+              onPressed: () {
+                Navigator.of(context).pop(false); // Return false when "No" is pressed
+              },
+            ),
+            TextButton(
+              child: Text('Yes'),
+              onPressed: () {
+                Navigator.of(context).pop(true); // Return true when "Yes" is pressed
+              },
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmDelete == true) {
+      print('Debug: Delete item with id ${details['id']}');
+      await SqlHelper.deleteItem(details['id']);
+      _refreshList(); // Refresh the list after deletion
+    }
+  },
+  icon: Icon(Icons.delete),
+),
+
               ],
             ),
           ),

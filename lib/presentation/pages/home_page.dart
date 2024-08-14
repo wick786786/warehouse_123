@@ -199,7 +199,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           : 3, // Responsive columns
                   crossAxisSpacing: 16.0,
                   mainAxisSpacing: 20.0,
-                  childAspectRatio: 0.7, // Adjust based on your card aspect ratio
+                  childAspectRatio: 0.75, // Adjust based on your card aspect ratio
                 ),
                 itemCount: connectedDevices.length,
                 itemBuilder: (context, index) {

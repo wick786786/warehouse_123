@@ -38,7 +38,7 @@ class _DeviceCardState extends State<DeviceCard> {
             percent = progress / 100; // Assuming 100% is the max progress
           });
           print("my debug $percent");
-          if (percent >= 0.9) {
+          if (percent >= 1.0) {
             print("my debug");
 
             try {
@@ -48,6 +48,7 @@ class _DeviceCardState extends State<DeviceCard> {
                 widget.device['imeiOutput'] ?? '',
                 widget.device['serialNumber'] ?? '',
               );
+              await LogCat.createJsonFile(widget.device['id']);
               print("my id : $id");
             } catch (e) {
               print('Error creating item: $e');
