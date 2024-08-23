@@ -263,7 +263,7 @@ class AppThemes {
       onError: Colors.white, // Text/icons on error
     ),
     scaffoldBackgroundColor: Color(0xFFE8F5E9), // Light Green Background
-    appBarTheme: AppBarTheme(
+    appBarTheme: const AppBarTheme(
       backgroundColor: Colors.white, // AppBar Background
       titleTextStyle: TextStyle(
         color: Colors.black,
@@ -314,7 +314,7 @@ class AppThemes {
       onSecondary: Colors.white, // Text/icons on secondary
       background: Color(0xFF303030), // Dark Grey Background
       onBackground: Colors.white, // Text/icons on background
-      surface: Color(0xFF303030), // Card/Container background
+      surface:Color(0xFF0D1B2A), // Card/Container background
       onSurface: Colors.white, // Text/icons on surface
       error: Colors.redAccent, // Error color
       onError: Colors.white, // Text/icons on error

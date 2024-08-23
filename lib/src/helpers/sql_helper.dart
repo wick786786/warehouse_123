@@ -25,20 +25,20 @@ class SqlHelper {
       )
       """,
     );
-    await database.execute(
-      """
-      CREATE TABLE device_summary(
-        deviceId TEXT PRIMARY KEY,
-        wifi TEXT
-      )
-      """,
-    );
+    // await database.execute(
+    //   """
+    //   CREATE TABLE device_summary(
+    //     deviceId TEXT PRIMARY KEY,
+    //     wifi TEXT
+    //   )
+    //   """,
+    // );
   }
 
   // Function to open or create a new database
   static Future<sql.Database> db() async {
     return sql.openDatabase(
-      'new_database.db', // New database name
+      'new_databasev2.db', // New database name
       version: 1, // Increment the version number if you make changes to the schema
       onCreate: (sql.Database database, int version) async {
         await createTables(database);
@@ -94,6 +94,7 @@ class SqlHelper {
   // Function to delete an item from the 'info' table by its ID
   static Future<int> deleteItem(int id) async {
     final db = await SqlHelper.db();
+    
     return await db.delete(
       'info',
       where: 'id = ?',
@@ -101,15 +102,26 @@ class SqlHelper {
     );
   }
 
-  // Function to insert device details into the 'device_summary' table
-  static Future<void> createDeviceInfo(String? deviceId, String? wifi) async {
-    final db = await SqlHelper.db();
-    final data = {
-      'deviceId': deviceId ?? 'null',
-      'wifi': wifi ?? 'null',
-    };
-    await db.insert('device_summary', data, conflictAlgorithm: sql.ConflictAlgorithm.replace);
+  static Future<int> deleteItemwithId(String ? id) async{
+    final db=await SqlHelper.db();
+
+    return await db.delete(
+      'info',
+      where: 'sno = ?',
+      whereArgs: [id],
+    );
+
   }
+
+  // // Function to insert device details into the 'device_summary' table
+  // static Future<void> createDeviceInfo(String? deviceId, String? wifi) async {
+  //   final db = await SqlHelper.db();
+  //   final data = {
+  //     'deviceId': deviceId ?? 'null',
+  //     'wifi': wifi ?? 'null',
+  //   };
+  //   await db.insert('device_summary', data, conflictAlgorithm: sql.ConflictAlgorithm.replace);
+  // }
 
   // Function to delete the database
   static Future<void> deleteDatabase() async {

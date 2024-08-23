@@ -6,7 +6,7 @@ import 'presentation/pages/home_page.dart';
 import 'package:sqflite/sqflite.dart' as sql;
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'themes/theme.dart';
-import 'package:adb_client/src/core/constants.dart';
+import 'package:warehouse_phase_1/src/core/constants.dart';
 import 'presentation/pages/login_page.dart';
 void main() {
   SqlHelper.initializeDatabaseFactory();
@@ -49,11 +49,11 @@ class _MyAppState extends State<MyApp> {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      home: MyHomePage(
-        title:'Warehouse Application',
-        onLocaleChange: _setLocale,
-         onThemeToggle: _toggleTheme, // Pass theme toggle callback
-      ),
+       home: MyHomePage(
+           title:'Warehouse Application',
+           onLocaleChange: _setLocale,
+           onThemeToggle: _toggleTheme, // Pass theme toggle callback
+        ),
       
     );
   }

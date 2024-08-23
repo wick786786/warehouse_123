@@ -1,12 +1,18 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:ffi';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:percent_indicator/percent_indicator.dart';
+import 'package:warehouse_phase_1/presentation/pages/view_details.dart';
+import 'package:warehouse_phase_1/src/helpers/device_row.dart';
 import 'dart:math';
 import '../src/helpers/launch_app.dart';
 import '../src/helpers/log_cat.dart'; // Ensure LogCat class is imported
 import '../src/helpers/sql_helper.dart';
 import 'mdm_status.dart';
+import 'package:warehouse_phase_1/crack-check/crack_detect.dart';
+
 class DeviceCard extends StatefulWidget {
   final Map<String, String> device;
 
@@ -19,175 +25,346 @@ class DeviceCard extends StatefulWidget {
 class _DeviceCardState extends State<DeviceCard> {
   double percent = 0; // Default percent value
   late StreamSubscription<int> _progressSubscription;
+  bool _isDevicePresent = false;
 
   @override
   void initState() {
     super.initState();
-    _startLogCat();
+    _checkDevicePresence();
   }
 
-  void _startLogCat() async {
-    String? id = widget.device['id'];
-    print('debug : device card ${widget.device['id']}');
-    if (id != null) {
-      try {
-        LogCat.startLogCat(id);
+  Future<void> _checkDevicePresence() async {
+    final items = await SqlHelper.getItems();
+    final deviceId = widget.device['id'] ?? '';
+    _isDevicePresent = items.any((item) => item['sno'] == deviceId);
+    if (!_isDevicePresent) {
+      _startLogCat();
+    } else {
+      setState(() {}); // Trigger a rebuild if the device is found
+    }
+  }
 
-        _progressSubscription = LogCat.getProgressStream(id).listen((progress) async {
-          setState(() {
-            percent = progress / 100; // Assuming 100% is the max progress
-          });
-          print("my debug $percent");
-          if (percent >= 1.0) {
-            print("my debug");
+ void _startLogCat() async {
+  String? id = widget.device['id'];
+  if (id != null) {
+    try {
+      LogCat.startLogCat(id);
 
-            try {
-              await SqlHelper.createItem(
-                widget.device['manufacturer'] ?? '',
-                widget.device['model'] ?? '',
-                widget.device['imeiOutput'] ?? '',
-                widget.device['serialNumber'] ?? '',
-              );
-              await LogCat.createJsonFile(widget.device['id']);
-              print("my id : $id");
-            } catch (e) {
-              print('Error creating item: $e');
-            }
-          }
+      _progressSubscription =
+          LogCat.getProgressStream(id).listen((progress) async {
+        setState(() {
+          percent = progress / 100; // Assuming 100% is the max progress
         });
-      } catch (e) {
-        print('Error starting LogCat: $e');
-      }
+        if (percent >= 1.0) {
+        
+          LogCat.stopLogCat(widget.device['id']);
+          try {
+            await SqlHelper.createItem(
+              widget.device['manufacturer'] ?? '',
+              widget.device['model'] ?? '',
+              widget.device['imeiOutput'] ?? '',
+              widget.device['serialNumber'] ?? '',
+            );
+            await LogCat.createJsonFile(widget.device['id']);
+          } catch (e) {
+            print('Error creating item: $e');
+          }
+        }
+      });
+    } catch (e) {
+      print('Error starting LogCat: $e');
+    }
+  }
+}
+  void _resetDeviceCard() async {
+    setState(() {
+      percent = 0;
+      _isDevicePresent = false;
+    });
+    await LogCat.clearDeviceLogs(widget.device['id']!);
+    _startLogCat(); // Restart log capturing if needed
+  }
+
+  Future<void> _loadHardwareChecks(BuildContext context) async {
+    final deviceId = widget.device['id'] ?? '';
+    final fileName = 'logcat_results_$deviceId.json';
+    final file = File(fileName);
+
+    if (await file.exists()) {
+      final jsonContent = await file.readAsString();
+      List<Map<String, dynamic>> hardwareChecks =
+          List<Map<String, dynamic>>.from(jsonDecode(jsonContent));
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => DeviceDetails(
+              details: widget.device, hardwareChecks: hardwareChecks),
+        ),
+      );
+    } else {
+      print("No hardware checks found.");
     }
   }
 
   @override
   void dispose() {
     _progressSubscription.cancel();
-    LogCat.stopLogCat(widget.device['id']!);
+    if (widget.device['id'] != null) {
+      LogCat.stopLogCat(widget.device['id']!);
+    }
     super.dispose();
   }
 
-  void _startAnalysis() {
-    // Implement your logic for starting analysis here
-  }
-
-  void _downloadReport() {
-    // Implement your logic for downloading the report here
-  }
-  String safeSubstring(String? value, int length) {
-  if (value == null || value.length < length) {
-    return value ?? 'N/A';
-  }
-  return value.substring(0, min(length,6));
-}
-
-
-
-
   @override
   Widget build(BuildContext context) {
-   final ThemeData theme = Theme.of(context);
-final Color primaryColor = theme.colorScheme.primary;
-final Color whiteColor = theme.colorScheme.onPrimary;
-final TextStyle deviceCardTitle = theme.textTheme.headlineSmall ?? TextStyle();
-final TextStyle deviceDetails = theme.textTheme.bodySmall ?? TextStyle();
+    final ThemeData theme = Theme.of(context);
+    final Color primaryColor = theme.colorScheme.primary;
+    final Color whiteColor = theme.colorScheme.onPrimary;
+    final Color secondaryColor = theme.colorScheme.secondary;
+    final TextStyle deviceCardTitle =
+        theme.textTheme.headlineSmall ?? TextStyle();
+    final TextStyle deviceDetails = theme.textTheme.bodySmall ?? TextStyle();
 
-return Container(
-  child: Card(
-    color: theme.cardColor,
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(15.0),
-    ),
-    elevation: 5,
-    child: Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(Icons.android, color: primaryColor),
-              SizedBox(width: 8),
-              Text(
-               safeSubstring(widget.device['manufacturer'],widget.device['manufacturer']!.length )+" "+safeSubstring(widget.device['model'], widget.device['model']!.length),
-                style: deviceCardTitle,
-              ),
-            ],
+    return SingleChildScrollView(
+      child: Container(
+        child: Card(
+          color: theme.cardColor,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20.0),
           ),
-          SizedBox(height: 8),
-          Image.asset(
-            'assets/device2.jpg',
-            width: 100,
-            height: 100,
-            fit: BoxFit.contain,
-          ),
-          SizedBox(height: 8),
-          Text(
-            'Model:  ${widget.device['model'] ?? 'N/A'}\n'
-            'Manufacturer: ${widget.device['manufacturer'] ?? 'N/A'}\n'
-            'Android Version: ${widget.device['androidVersion'] ?? 'N/A'}\n'
-            'Serial Number: ${widget.device['serialNumber'] ?? 'N/A'}\n'
-            'IMEI: ${widget.device['imeiOutput'] ?? 'N/A'}\n',
-            style: deviceDetails,
-          ),
-          SizedBox(height: 8),
-          Row(
-            children: [
-              Column(
-                children: [
-                  MdmStatus(status: widget.device['mdm_status']),
-                  Text('MDM'),
-                ],
-              ),
-              SizedBox(width:12),
-              Column(
-                children: [
-                  Icon(Icons.battery_6_bar_rounded,color:primaryColor,),
-                  Text(widget.device['batterylevel']!.substring(min(widget.device['batterylevel']!.length,7),widget.device['batterylevel']!.length) ?? 'N/A'),
-                ],
-              ),
-              SizedBox(width:12),
-               Column(
-                children: [
-                  //Icon(Icons.battery_6_bar_rounded,color:primaryColor,),
-                  Text('${widget.device['ram']}/${widget.device['rom']}',style:TextStyle(fontSize: 15),),
-                  Text('RAM/ROM'),
-                ],
-              ),
-            ],
-          ),
-          SizedBox(height: 10),
-          LinearPercentIndicator(
-            width: 200.0,
-            animation: true,
-            animationDuration: 1000,
-            lineHeight: 23.0,
-            percent: min(percent,1),
-            center: Text(
-              "${(percent * 100).toStringAsFixed(1)}%",
-              style: TextStyle(color: whiteColor, fontSize: 12),
+          elevation: 6,
+          shadowColor: Colors.black26,
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Stack(
+                      children: [
+                        CircleAvatar(
+                          backgroundColor: primaryColor.withOpacity(0.2),
+                          child: Icon(Icons.android, color: primaryColor),
+                        ),
+                        Positioned(
+                          right: -2,
+                          top: -2,
+                          child: Container(
+                            padding: EdgeInsets.all(2),
+                            decoration: BoxDecoration(
+                              color: Colors.redAccent,
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: theme.cardColor,
+                                width: 1.5,
+                              ),
+                            ),
+                            constraints: BoxConstraints(
+                              minWidth: 20,
+                              minHeight: 20,
+                            ),
+                            child: Center(
+                              child: Text(
+                                '${widget.device['androidVersion']}',
+                                style: TextStyle(
+                                  color: whiteColor,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        "${widget.device['manufacturer']} ${widget.device['model']}",
+                        style: deviceCardTitle.copyWith(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    if (_isDevicePresent)
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: Image.asset(
+                          'assets/completed_Stamp.png',
+                          width: 75,
+                          height: 75,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                  ],
+                ),
+                SizedBox(height: 12),
+                const Divider(
+                  color: Color(0xFFDCD1D1),
+                  thickness: 1.5,
+                  height: 20.0,
+                  indent: 0.0,
+                  endIndent: 0.0,
+                ),
+                Container(
+                  padding: EdgeInsets.symmetric(vertical: 10.0),
+                  child: Column(
+                    children: [
+                      _buildInfoRow(
+                          'Model', widget.device['model'] ?? 'N/A', theme),
+                      _buildInfoRow('Manufacturer',
+                          widget.device['manufacturer'] ?? 'N/A', theme),
+                      _buildInfoRow('Version',
+                          widget.device['androidVersion'] ?? 'N/A', theme),
+                      _buildInfoRow('Serial No.',
+                          widget.device['serialNumber'] ?? 'N/A', theme),
+                      _buildInfoRow(
+                          'IMEI', widget.device['imeiOutput'] ?? 'N/A', theme),
+                    ],
+                  ),
+                ),
+                const Divider(
+                  color: Color(0xFFDCD1D1),
+                  thickness: 1.5,
+                  height: 20.0,
+                  indent: 0.0,
+                  endIndent: 0.0,
+                ),
+                SizedBox(height: 12),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Flexible(
+                      child: Column(
+                        children: [
+                          MdmStatus(status: widget.device['mdm_status']),
+                          Text(
+                            'MDM',
+                            style: deviceDetails.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: theme.textTheme.bodySmall?.color,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(width: 12),
+                    Flexible(
+                      child: Column(
+                        children: [
+                          Icon(Icons.battery_6_bar_rounded,
+                              color: primaryColor),
+                          Text(
+                            widget.device['batterylevel']?.substring(
+                                    min(widget.device['batterylevel']!.length,
+                                        7),
+                                    widget.device['batterylevel']!.length) ??
+                                'N/A',
+                            style: deviceDetails.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: theme.textTheme.bodySmall?.color,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(width: 12),
+                    Flexible(
+                      child: Column(
+                        children: [
+                          Text(
+                            '${widget.device['ram']}',
+                            style: deviceDetails.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: theme.textTheme.bodySmall?.color,
+                            ),
+                          ),
+                          Text(
+                            'RAM',
+                            style: deviceDetails.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: theme.textTheme.bodySmall?.color,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 15),
+                if ((!_isDevicePresent) && percent < 1.0)
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      LinearProgressIndicator(
+                        backgroundColor: Colors.grey.shade300,
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                            Colors.green.shade400),
+                        value: percent,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            '${(percent * 100).round()}/100',
+                            style: TextStyle(fontSize: 12),
+                          ),
+                        ],
+                      )
+                    ],
+                  )
+                else
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Icon(Icons.check_circle, color: Colors.green),
+
+                     
+                       
+                      TextButton(
+                        onPressed: () async {
+                          await _loadHardwareChecks(context);
+                        },
+                        child: Text('View Details'),
+                      ),
+                    ],
+                  ),
+              ],
             ),
-            linearStrokeCap: LinearStrokeCap.roundAll,
-            progressColor: primaryColor,
           ),
-          SizedBox(height: 15),
-          // if (percent >= 1.0)
-          //   Row(
-          //     children: [
-          //       Icon(Icons.done, color: Colors.green),
-          //       SizedBox(width: 8),
-          //       ElevatedButton(
-          //         onPressed: _downloadReport,
-          //         child: Text('Download Report'),
-          //       ),
-          //     ],
-          //   ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInfoRow(String label, String value, ThemeData theme) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            '$label:',
+            style: theme.textTheme.bodySmall?.copyWith(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: theme.textTheme.bodySmall?.color,
+            ),
+          ),
+          Text(
+            value,
+            style: theme.textTheme.bodySmall?.copyWith(
+              fontSize: 16,
+              color: theme.textTheme.bodySmall?.color?.withOpacity(0.7),
+            ),
+          ),
         ],
       ),
-    ),
-  ),
-);
-
+    );
   }
 }

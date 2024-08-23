@@ -46,7 +46,7 @@ class LoginPage extends StatelessWidget {
                               style: TextStyle(
                                 fontFamily: 'Poppins, "Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
                                 fontWeight: FontWeight.w700,
-                                color: Colors.white,
+                                color: Colors.black,
                                 fontSize: 72,
                                 height: 1,
                               ),

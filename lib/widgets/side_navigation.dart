@@ -4,6 +4,7 @@ import '../presentation/pages/processed_list.dart';
 import '../src/core/constants.dart'; // Import the constants
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
+
 class SideNavigation extends StatefulWidget {
   @override
   _SideNavigationState createState() => _SideNavigationState();
@@ -66,19 +67,19 @@ class _SideNavigationState extends State<SideNavigation> {
                   },
                 ),
                 const SizedBox(height: 28),
-                _buildNavItem(
-                  icon: Icons.hourglass_empty,
-                  text: AppLocalizations.of(context)!.underProcess,
-                  isHovering: _isHoveringUnderProcess,
-                  onEnter: () => setState(() => _isHoveringUnderProcess = true),
-                  onExit: () => setState(() => _isHoveringUnderProcess = false),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => Processing()),
-                    );
-                  },
-                ),
+                // _buildNavItem(
+                //   icon: Icons.hourglass_empty,
+                //   text: AppLocalizations.of(context)!.underProcess,
+                //   isHovering: _isHoveringUnderProcess,
+                //   onEnter: () => setState(() => _isHoveringUnderProcess = true),
+                //   onExit: () => setState(() => _isHoveringUnderProcess = false),
+                //   onTap: () {
+                //     Navigator.push(
+                //       context,
+                //       MaterialPageRoute(builder: (context) => Processing()),
+                //     );
+                //   },
+                // ),
               ],
             ),
           ),
