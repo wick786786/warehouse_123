@@ -5,13 +5,13 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:warehouse_phase_1/presentation/pages/view_details.dart';
-import 'package:warehouse_phase_1/src/helpers/device_row.dart';
 import 'dart:math';
 import '../src/helpers/launch_app.dart';
 import '../src/helpers/log_cat.dart'; // Ensure LogCat class is imported
 import '../src/helpers/sql_helper.dart';
 import 'mdm_status.dart';
-import 'package:warehouse_phase_1/crack-check/crack_detect.dart';
+
+//import 'package:adb_client/crack-check/crack_detect.dart';
 
 class DeviceCard extends StatefulWidget {
   final Map<String, String> device;
@@ -25,11 +25,13 @@ class DeviceCard extends StatefulWidget {
 class _DeviceCardState extends State<DeviceCard> {
   double percent = 0; // Default percent value
   late StreamSubscription<int> _progressSubscription;
+  late StreamSubscription<void> _restartSubscription;
   bool _isDevicePresent = false;
 
   @override
   void initState() {
     super.initState();
+    _startLogCat();
     _checkDevicePresence();
   }
 
@@ -42,47 +44,6 @@ class _DeviceCardState extends State<DeviceCard> {
     } else {
       setState(() {}); // Trigger a rebuild if the device is found
     }
-  }
-
- void _startLogCat() async {
-  String? id = widget.device['id'];
-  if (id != null) {
-    try {
-      LogCat.startLogCat(id);
-
-      _progressSubscription =
-          LogCat.getProgressStream(id).listen((progress) async {
-        setState(() {
-          percent = progress / 100; // Assuming 100% is the max progress
-        });
-        if (percent >= 1.0) {
-        
-          LogCat.stopLogCat(widget.device['id']);
-          try {
-            await SqlHelper.createItem(
-              widget.device['manufacturer'] ?? '',
-              widget.device['model'] ?? '',
-              widget.device['imeiOutput'] ?? '',
-              widget.device['serialNumber'] ?? '',
-            );
-            await LogCat.createJsonFile(widget.device['id']);
-          } catch (e) {
-            print('Error creating item: $e');
-          }
-        }
-      });
-    } catch (e) {
-      print('Error starting LogCat: $e');
-    }
-  }
-}
-  void _resetDeviceCard() async {
-    setState(() {
-      percent = 0;
-      _isDevicePresent = false;
-    });
-    await LogCat.clearDeviceLogs(widget.device['id']!);
-    _startLogCat(); // Restart log capturing if needed
   }
 
   Future<void> _loadHardwareChecks(BuildContext context) async {
@@ -107,13 +68,72 @@ class _DeviceCardState extends State<DeviceCard> {
     }
   }
 
+  void _startLogCat() async {
+    String? id = widget.device['id'];
+    if (id != null) {
+      try {
+        LogCat.startLogCat(id);
+        //  _isDevicePresent=false;
+        _progressSubscription = LogCat.getProgressStream(id).listen((progress) {
+          setState(() {
+            percent = progress / 100; // Assuming 100% is the max progress
+             _isDevicePresent=false;
+          });
+
+          if (percent >= 1.0) {
+            // LogCat.stopLogCat(widget.device['id']);
+            _saveResults();
+          }
+        });
+
+        // Listen for the restart event
+        _restartSubscription = LogCat.getRestartStream(id).listen((_) {
+          setState(() {
+            percent = 0; 
+            _isDevicePresent=false;// Reset progress to 0 on restart event
+          });
+          LogCat.clearDeviceLogs(id); // Clear logs when device restarts
+        });
+      } catch (e) {
+        print('Error starting LogCat: $e');
+      }
+    }
+  }
+
+  Future<void> _saveResults() async {
+    try {
+      await SqlHelper.createItem(
+        widget.device['manufacturer'] ?? '',
+        widget.device['model'] ?? '',
+        widget.device['imeiOutput'] ?? '',
+        widget.device['serialNumber'] ?? '',
+      );
+      await LogCat.createJsonFile(widget.device['id']);
+    } catch (e) {
+      print('Error saving results: $e');
+    }
+  }
+
   @override
   void dispose() {
     _progressSubscription.cancel();
-    if (widget.device['id'] != null) {
-      LogCat.stopLogCat(widget.device['id']!);
-    }
+    _restartSubscription.cancel(); // Cancel the restart subscription
+    LogCat.stopLogCat(widget.device['id']!);
     super.dispose();
+  }
+
+  void _startAnalysis() {
+    // Implement your logic for starting analysis here
+  }
+
+  void _downloadReport() {
+    // Implement your logic for downloading the report here
+  }
+  String safeSubstring(String? value, int length) {
+    if (value == null || value.length < length) {
+      return value ?? 'N/A';
+    }
+    return value.substring(0, min(length, 6));
   }
 
   @override
@@ -121,7 +141,6 @@ class _DeviceCardState extends State<DeviceCard> {
     final ThemeData theme = Theme.of(context);
     final Color primaryColor = theme.colorScheme.primary;
     final Color whiteColor = theme.colorScheme.onPrimary;
-    final Color secondaryColor = theme.colorScheme.secondary;
     final TextStyle deviceCardTitle =
         theme.textTheme.headlineSmall ?? TextStyle();
     final TextStyle deviceDetails = theme.textTheme.bodySmall ?? TextStyle();
@@ -142,48 +161,14 @@ class _DeviceCardState extends State<DeviceCard> {
               children: [
                 Row(
                   children: [
-                    Stack(
-                      children: [
-                        CircleAvatar(
-                          backgroundColor: primaryColor.withOpacity(0.2),
-                          child: Icon(Icons.android, color: primaryColor),
-                        ),
-                        Positioned(
-                          right: -2,
-                          top: -2,
-                          child: Container(
-                            padding: EdgeInsets.all(2),
-                            decoration: BoxDecoration(
-                              color: Colors.redAccent,
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: theme.cardColor,
-                                width: 1.5,
-                              ),
-                            ),
-                            constraints: BoxConstraints(
-                              minWidth: 20,
-                              minHeight: 20,
-                            ),
-                            child: Center(
-                              child: Text(
-                                '${widget.device['androidVersion']}',
-                                style: TextStyle(
-                                  color: whiteColor,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
+                    CircleAvatar(
+                      backgroundColor: primaryColor.withOpacity(0.2),
+                      child: Icon(Icons.android, color: primaryColor),
                     ),
                     SizedBox(width: 12),
                     Expanded(
                       child: Text(
-                        "${widget.device['manufacturer']} ${widget.device['model']}",
+                        "${safeSubstring(widget.device['manufacturer'], widget.device['manufacturer']!.length)} ${safeSubstring(widget.device['model'], widget.device['model']!.length)}",
                         style: deviceCardTitle.copyWith(
                           fontWeight: FontWeight.bold,
                           fontSize: 18,
@@ -191,16 +176,6 @@ class _DeviceCardState extends State<DeviceCard> {
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                    if (_isDevicePresent)
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: Image.asset(
-                          'assets/completed_Stamp.png',
-                          width: 75,
-                          height: 75,
-                          fit: BoxFit.cover,
-                        ),
-                      ),
                   ],
                 ),
                 SizedBox(height: 12),
@@ -260,7 +235,7 @@ class _DeviceCardState extends State<DeviceCard> {
                           Icon(Icons.battery_6_bar_rounded,
                               color: primaryColor),
                           Text(
-                            widget.device['batterylevel']?.substring(
+                            widget.device['batterylevel']!.substring(
                                     min(widget.device['batterylevel']!.length,
                                         7),
                                     widget.device['batterylevel']!.length) ??
@@ -297,7 +272,7 @@ class _DeviceCardState extends State<DeviceCard> {
                   ],
                 ),
                 SizedBox(height: 15),
-                if ((!_isDevicePresent) && percent < 1.0)
+                if (percent >=0 && percent < 1.0 && !_isDevicePresent)
                   Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
@@ -318,22 +293,66 @@ class _DeviceCardState extends State<DeviceCard> {
                       )
                     ],
                   )
-                else
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                else if(_isDevicePresent||percent==1.0)
+                  Column(
                     children: [
-                      Icon(Icons.check_circle, color: Colors.green),
+                      const Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Icon(
+                            Icons.check_circle,
+                            color: Colors.green,
+                          ),
 
-                     
-                       
+                          Text('Testing complete'),
+
+                          // Icon(Icons.delete)
+                        ],
+                      ),
+                      const SizedBox(height: 15),
                       TextButton(
                         onPressed: () async {
                           await _loadHardwareChecks(context);
                         },
-                        child: Text('View Details'),
+                        style: TextButton.styleFrom(
+                          backgroundColor:
+                              Colors.green, // Set your preferred button color
+                          shape: RoundedRectangleBorder(
+                            borderRadius:
+                                BorderRadius.circular(8), // Rounded corners
+                          ),
+                          // minimumSize: const Size(100, 40), // Define the size of the button
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 12), // Padding inside the button
+                        ),
+                        child: const Text(
+                          'View Details',
+                          style: TextStyle(color: Colors.white), // Text color
+                        ),
                       ),
                     ],
                   ),
+
+                //  SizedBox(width:20),
+                //  Text('Completed')
+
+                // ElevatedButton.icon(
+                //   onPressed: _downloadReport,
+                //   icon: Icon(Icons.done, color: Colors.white),
+                //   label: Text(
+                //     'Start Crack Check',
+                //     style: TextStyle(fontWeight: FontWeight.bold),
+                //   ),
+                //   style: ElevatedButton.styleFrom(
+                //     //primary: Colors.green,
+                //     // onPrimary: Colors.white,
+                //     shape: RoundedRectangleBorder(
+                //       borderRadius: BorderRadius.circular(8.0),
+                //     ),
+                //   ),
+                // ),
+                // SizedBox(height: 15),
               ],
             ),
           ),

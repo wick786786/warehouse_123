@@ -2,21 +2,18 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:warehouse_phase_1/src/helpers/sql_helper.dart';
-
 class LogCat {
   static final Map<String, StreamController<int>> _progressControllers = {};
   static Map<String, List<Map<String, dynamic>>> testResults = {};
-  static Map<String,bool>restart={};
-  
+   static final Map<String, StreamController<void>> _restartControllers = {}; // For restart events
+
   static Stream<int> getProgressStream(String deviceId) {
     if (!_progressControllers.containsKey(deviceId)) {
       _progressControllers[deviceId] = StreamController<int>.broadcast();
     }
     return _progressControllers[deviceId]!.stream;
   }
-
- static  Future<void> clearDeviceLogs(String deviceId) async {
+  static  Future<void> clearDeviceLogs(String deviceId) async {
   try {
     // Run the adb command to clear the logs
     ProcessResult result = await Process.run(
@@ -34,40 +31,37 @@ class LogCat {
   }
 }
 
+  static Stream<void> getRestartStream(String deviceId) {
+    if (!_restartControllers.containsKey(deviceId)) {
+      _restartControllers[deviceId] = StreamController<void>.broadcast();
+    }
+    return _restartControllers[deviceId]!.stream;
+  }
 
-static void startLogCat(String deviceId) {
-  print('Starting logcat for device: $deviceId');
-
-  Timer? timer;
-  Process? process;
-
-  void startLogcatProcess() async {
+  static void startLogCat(String deviceId) {
     print('debug:logcat $deviceId');
-
-    try {
-      process = await Process.start(
-        'adb',
-        ['-s', deviceId, 'logcat'],
-        mode: ProcessStartMode.normal,
-      );
-
+    Process.start(
+      'adb',
+      ['-s', deviceId, 'logcat'],
+      mode: ProcessStartMode.normal,
+    ).then((process) {
       int progress = 0;
       List<Map<String, dynamic>> deviceResult = [];
 
-      process!.stdout.transform(Utf8Decoder()).listen((data) async {
+      process.stdout.transform(Utf8Decoder()).listen((data) async {
         if (data.contains('warehouse.start')) {
           progress = 0;
-          _progressControllers[deviceId]?.add(progress);
+          _progressControllers[deviceId]?.add(0); 
+          print('start');
           await clearDeviceLogs(deviceId);
         }
         if (data.contains('warehouse.restart')) {
-          progress = 0;
-          print('restart mai swagat hai aapka');
-          _progressControllers[deviceId]?.add(progress);
-          testResults[deviceId]?.clear();
+          progress=0;
+          _restartControllers[deviceId]?.add(null); // Notify restart event
+          _progressControllers[deviceId]?.add(0); // Reset progress to 0
+          print('restart');
           await clearDeviceLogs(deviceId);
-          await SqlHelper.deleteItemwithId(deviceId);
-          print('Restarting the process for device $deviceId');
+          //return; // Early exit after reset
         }
 
         final regex = RegExp(r'1723263045@warehouse: ({.*})');
@@ -76,45 +70,24 @@ static void startLogCat(String deviceId) {
         if (match != null) {
           final jsonString = match.group(1)!;
           final Map<String, dynamic> jsonData = jsonDecode(jsonString);
+
           deviceResult.add(jsonData);
 
-          progress = progress + 5;
+          // Increment progress
+          progress += 5;
           _progressControllers[deviceId]?.add(progress);
         }
 
         testResults[deviceId] = deviceResult;
-        // print("device results:${deviceResult}");
       });
 
-      process!.stderr.transform(Utf8Decoder()).listen((data) {
+      process.stderr.transform(Utf8Decoder()).listen((data) {
         print('Error: $data');
       });
-    } catch (e) {
+    }).catchError((e) {
       print('Error starting logcat: $e');
-    }
+    });
   }
-
-  void checkDeviceConnection() async {
-    try {
-      final result = await Process.run('adb', ['devices']);
-      if (result.stdout.contains(deviceId)) {
-        if (process == null) {
-          startLogcatProcess();
-        }
-      } else {
-        print('Device $deviceId disconnected.');
-        process?.kill();
-        process = null;
-      }
-    } catch (e) {
-      print('Error checking device connection: $e');
-    }
-  }
-
-  // Check the device connection status every 5 seconds
-  timer = Timer.periodic(Duration(seconds: 2), (_) => checkDeviceConnection());
-}
-
   static Future<void> createJsonFile(String? deviceId) async {
     try {
       if (testResults.containsKey(deviceId)) {
@@ -145,7 +118,8 @@ static void startLogCat(String deviceId) {
         }
 
         // Convert the merged data back to a list of maps
-        List<Map<String, dynamic>> finalData = existingData.entries.map((entry) {
+        List<Map<String, dynamic>> finalData =
+            existingData.entries.map((entry) {
           return {entry.key: entry.value};
         }).toList();
 
@@ -176,7 +150,6 @@ static void startLogCat(String deviceId) {
     print('Error deleting JSON file: $e');
   }
 }
-
 
   static void stopLogCat(String? deviceId) {
     _progressControllers[deviceId]?.close();
