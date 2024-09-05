@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../../src/core/constants.dart';
 
 class LoginPage extends StatelessWidget {
+  const LoginPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     // Access the theme data from the context
@@ -11,7 +13,7 @@ class LoginPage extends StatelessWidget {
     final TextStyle headlineStyle = theme.textTheme.headlineLarge?.copyWith(
       color: onPrimaryColor,
       fontWeight: FontWeight.w700,
-    ) ?? TextStyle(fontSize: 72, fontWeight: FontWeight.w700);
+    ) ?? const TextStyle(fontSize: 72, fontWeight: FontWeight.w700);
 
     return Scaffold(
       body: Stack(
@@ -20,7 +22,7 @@ class LoginPage extends StatelessWidget {
           Container(
             decoration: BoxDecoration(
               image: DecorationImage(
-                image: AssetImage('assets/background_4.jpg'),
+                image: const AssetImage('assets/background_4.jpg'),
                 fit: BoxFit.cover,
                 colorFilter: ColorFilter.mode(
                   theme.colorScheme.primary.withOpacity(0.6), // Change this color to whatever you prefer
@@ -37,7 +39,7 @@ class LoginPage extends StatelessWidget {
                 Expanded(
                   child: Center(
                     child: Container(
-                      padding: EdgeInsets.all(20),
+                      padding: const EdgeInsets.all(20),
                       child: RichText(
                         text: const TextSpan(
                           children: [
@@ -71,7 +73,7 @@ class LoginPage extends StatelessWidget {
                   child: Center(
                     child: Container(
                       width: 400,
-                      padding: EdgeInsets.all(20),
+                      padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
                         color: theme.colorScheme.surface,
                         borderRadius: BorderRadius.circular(10),
@@ -80,7 +82,7 @@ class LoginPage extends StatelessWidget {
                             color: theme.shadowColor.withOpacity(0.5),
                             spreadRadius: 5,
                             blurRadius: 4,
-                            offset: Offset(0, 3),
+                            offset: const Offset(0, 3),
                           ),
                         ],
                       ),
@@ -92,7 +94,7 @@ class LoginPage extends StatelessWidget {
                             size: 60,
                             color: primaryColor,
                           ),
-                          SizedBox(height: 20),
+                          const SizedBox(height: 20),
                           TextField(
                             decoration: InputDecoration(
                               prefixIcon: Icon(Icons.person, color: primaryColor),
@@ -103,7 +105,7 @@ class LoginPage extends StatelessWidget {
                               ),
                             ),
                           ),
-                          SizedBox(height: 20),
+                          const SizedBox(height: 20),
                           TextField(
                             obscureText: true,
                             decoration: InputDecoration(
@@ -115,14 +117,14 @@ class LoginPage extends StatelessWidget {
                               ),
                             ),
                           ),
-                          SizedBox(height: 20),
+                          const SizedBox(height: 20),
                           ElevatedButton(
                             onPressed: () {
                               // Handle login action
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: primaryColor,
-                              padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                              padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(10),
                               ),

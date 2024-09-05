@@ -75,7 +75,7 @@ Future<http.Response> post(String url, String key, String value, String data) as
   final filename = path.basename(filePath);
 
   try {
-    final url = 'https://crackapi.getinstacash.in/video-crack/upload';
+    const url = 'https://crackapi.getinstacash.in/video-crack/upload';
     final request = http.MultipartRequest('POST', Uri.parse(url));
     request.headers['Authorization'] =
         'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTY3ODQ0NDcxNywianRpIjoiYmRmMTFmZjgtMjIzMS00ODE3LTlhMjItMDkxOWNjNGVhZGI4IiwidHlwZSI6ImFjY2VzcyIsInN1YiI6InByYXRlZWtnb2VsIiwibmJmIjoxNjc4NDQ0NzE3LCJleHAiOjE3NDE1MTY3MTd9.ZOuYfpVwYZZ_jxnwzppNOfnWznpHQiOVsD8u5i1zoIM'; // Your token here
@@ -123,6 +123,44 @@ Future<http.Response> post(String url, String key, String value, String data) as
   }
 
   
+}
+
+Future<void> getImage() async {
+    // Define your URL
+    const String url = 'https://getinstacash.in/instaCash/api/v5/public/getProductIdCurrentDevice';
+
+    // Create the body of the POST request
+    final Map<String, String> body = {
+      'userName': 'yourUserName',
+      'apiKey': 'yourApiKey',
+      'deviceBrand': 'yourDeviceBrand',
+      'modelBrand': 'yourModelBrand',
+      'device': 'yourDevice',
+      'model': 'yourModel',
+      'memory': 'yourMemory',
+      'ram': 'yourRam',
+      'deviceType': 'yourDeviceType',
+    };
+
+    try {
+      // Make the POST request
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {"Content-Type": "application/x-www-form-urlencoded"},
+        body: body,
+      );
+
+      // Check if the request was successful
+      if (response.statusCode == 200) {
+        // Parse the JSON response
+        final jsonData = json.decode(response.body);
+        print('Response data: $jsonData');
+      } else {
+        print('Failed to load data. Status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error: $e');
+    }
 }
 
  

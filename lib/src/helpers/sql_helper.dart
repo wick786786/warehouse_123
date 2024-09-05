@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart' as sql;
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
@@ -22,6 +23,7 @@ class SqlHelper {
         iemi TEXT,
         sno TEXT,
         createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+        
       )
       """,
     );
@@ -94,16 +96,43 @@ class SqlHelper {
   // Function to delete an item from the 'info' table by its ID
   static Future<int> deleteItem(int id) async {
     final db = await SqlHelper.db();
-    
+    // await deleteDeviceProgress(id);
     return await db.delete(
       'info',
       where: 'id = ?',
       whereArgs: [id],
     );
   }
+    // Function to get item details by iemi or sno
+static Future<Map<String, dynamic>?> getItemDetails(String? deviceId) async {
+  final db = await SqlHelper.db();
+  final List<Map<String, dynamic>> result = await db.query(
+    'info',
+    where: ' sno = ?',
+    whereArgs: [deviceId],
+  );
+
+  if (result.isNotEmpty) {
+    return result.first;
+  }
+  return null;
+}
+static Future<void> deleteDeviceProgress(String? deviceId) async {
+  final prefs = await SharedPreferences.getInstance();
+  final key = '$deviceId-progress';
+
+  if (prefs.containsKey(key)) {
+    await prefs.remove(key);
+    print('Progress for device "$deviceId" deleted from SharedPreferences.');
+  } else {
+    print('No progress found for device "$deviceId" in SharedPreferences.');
+  }
+}
 
   static Future<int> deleteItemwithId(String ? id) async{
     final db=await SqlHelper.db();
+
+    await deleteDeviceProgress(id);
 
     return await db.delete(
       'info',

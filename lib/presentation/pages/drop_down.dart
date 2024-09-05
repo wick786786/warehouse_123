@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class LanguageDropdown extends StatefulWidget {
   final Function(Locale) onLanguageChange;
 
-  LanguageDropdown({required this.onLanguageChange});
+  const LanguageDropdown({super.key, required this.onLanguageChange});
 
   @override
   _LanguageDropdownState createState() => _LanguageDropdownState();
@@ -26,9 +26,9 @@ class _LanguageDropdownState extends State<LanguageDropdown> {
         });
 
         if (newValue == 'English') {
-          widget.onLanguageChange(Locale('en', 'US'));
+          widget.onLanguageChange(const Locale('en', 'US'));
         } else if (newValue == 'Spanish') {
-          widget.onLanguageChange(Locale('es', 'ES'));
+          widget.onLanguageChange(const Locale('es', 'ES'));
         }
       },
       items: <String>['English', 'Spanish']

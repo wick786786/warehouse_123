@@ -116,29 +116,29 @@
 //   );
 // }
 
-/*
-     -----------------------------dropbox (blue theme)-----------------------------
-
-     import 'package:flutter/material.dart';
+//  -----------------------------dropbox (blue theme)-----------------------------
+import 'package:flutter/material.dart';
 
 class AppThemes {
   static ThemeData lightMode = ThemeData(
     brightness: Brightness.light,
     colorScheme: const ColorScheme.light(
-      primary: Color(0xFF007EE5), // Dropbox Blue
+      primary:
+          Color(0xFF8A2BE2), // Purple Primary Color (similar to dark theme)
       onPrimary: Colors.white, // Text/icons on primary
-      secondary: Color(0xFF00A3E0), // Light Blue Accent
-      onSecondary: Colors.white, // Text/icons on secondary
-      background: Color(0xFFF5F7FA), // Light Grey Background
-      onBackground: Colors.black, // Text/icons on background
-      surface: Colors.white, // Card/Container background
-      onSurface: Colors.black, // Text/icons on surface
-      error: Colors.red, // Error color
+      secondary:
+          Color(0xFF9370DB), // Light Purple Accent (similar to dark theme)
+      onSecondary: Colors.white, // Darker Text/icons on background for readability
+      surface:
+          Color(0xFFFFFFFF), // White Surface (lighter for cards/containers)
+      onSurface: Colors.black87, // Darker Text/icons on surface for readability
+      error: Colors.redAccent, // Error color (matching the dark theme)
       onError: Colors.white, // Text/icons on error
     ),
-    scaffoldBackgroundColor: Color(0xFFF5F7FA), // Light Grey Background
-    appBarTheme: AppBarTheme(
-      backgroundColor: Color(0xFF007EE5), // Dropbox Blue AppBar
+    scaffoldBackgroundColor: const Color(0xFFF0F0F3), // Light Grey Background
+    appBarTheme: const AppBarTheme(
+      backgroundColor:
+          Color(0xFF8A2BE2), // Purple AppBar (matching the dark theme)
       titleTextStyle: TextStyle(
         color: Colors.white,
         fontSize: 24,
@@ -147,34 +147,35 @@ class AppThemes {
       ),
       iconTheme: IconThemeData(color: Colors.white), // White Icon Color
     ),
-    drawerTheme: DrawerThemeData(
-      backgroundColor: Color(0xFF007EE5), // Dropbox Blue Sidebar Background
+    drawerTheme: const DrawerThemeData(
+      backgroundColor: Color(
+          0xFF8A2BE2), // Purple Sidebar Background (matching the dark theme)
     ),
     textTheme: const TextTheme(
       titleLarge: TextStyle(
         fontSize: 24,
-        color: Colors.black,
+        color: Colors.black87, // Darker Text Color for readability
         fontFamily: 'Segoe UI, Tahoma, Geneva, Verdana, sans-serif',
       ),
       titleMedium: TextStyle(
-        color: Colors.black,
+        color: Colors.black87, // Darker Text Color for readability
         fontSize: 22,
         fontWeight: FontWeight.bold,
         fontFamily: 'Segoe UI, Tahoma, Geneva, Verdana, sans-serif',
       ),
       bodySmall: TextStyle(
-        color: Colors.black,
+        color: Colors.black87, // Darker Text Color for readability
         fontSize: 13,
         fontFamily: 'Segoe UI, Tahoma, Geneva, Verdana, sans-serif',
       ),
       bodyMedium: TextStyle(
         fontSize: 18,
-        color: Colors.black87,
+        color: Colors.black54, // Softer Text Color for secondary text
         fontFamily: 'Segoe UI, Tahoma, Geneva, Verdana, sans-serif',
       ),
     ),
-    buttonTheme: ButtonThemeData(
-      buttonColor: Color(0xFF007EE5), // Dropbox Blue Accent
+    buttonTheme: const ButtonThemeData(
+      buttonColor: Color(0xFF8A2BE2), // Purple Accent (matching the dark theme)
       textTheme: ButtonTextTheme.primary,
     ),
   );
@@ -182,19 +183,17 @@ class AppThemes {
   static ThemeData darkMode = ThemeData(
     brightness: Brightness.dark,
     colorScheme: const ColorScheme.dark(
-      primary: Color(0xFF007EE5), // Dropbox Blue
+      primary: Color(0xFF8A2BE2), // Purple Primary Color
       onPrimary: Colors.white, // Text/icons on primary
-      secondary: Color(0xFF00A3E0), // Light Blue Accent
-      onSecondary: Colors.black, // Text/icons on secondary
-      background: Color(0xFF1C1C1E), // Dark Grey Background
-      onBackground: Colors.white, // Text/icons on background
+      secondary: Color(0xFF9370DB), // Light Purple Accent
+      onSecondary: Colors.black, // Text/icons on background
       surface: Color(0xFF2C2C2E), // Darker Grey Surface
       onSurface: Colors.white, // Text/icons on surface
       error: Colors.redAccent, // Error color
       onError: Colors.white, // Text/icons on error
     ),
-    scaffoldBackgroundColor: Color(0xFF1C1C1E), // Dark Grey Background
-    appBarTheme: AppBarTheme(
+    scaffoldBackgroundColor: const Color(0xFF1C1C1E), // Dark Grey Background
+    appBarTheme: const AppBarTheme(
       backgroundColor: Color(0xFF2C2C2E), // Darker Grey AppBar
       titleTextStyle: TextStyle(
         color: Colors.white,
@@ -202,10 +201,10 @@ class AppThemes {
         fontWeight: FontWeight.bold,
         fontFamily: 'Segoe UI, Tahoma, Geneva, Verdana, sans-serif',
       ),
-      iconTheme: IconThemeData(color: Color(0xFF007EE5)), // Dropbox Blue Icon Color
+      iconTheme: IconThemeData(color: Color(0xFF8A2BE2)), // Purple Icon Color
     ),
-    drawerTheme: DrawerThemeData(
-      backgroundColor: Color(0xFF007EE5), // Dropbox Blue Sidebar Background
+    drawerTheme: const DrawerThemeData(
+      backgroundColor: Color(0xFF8A2BE2), // Purple Sidebar Background
     ),
     textTheme: const TextTheme(
       titleLarge: TextStyle(
@@ -230,138 +229,133 @@ class AppThemes {
         fontFamily: 'Segoe UI, Tahoma, Geneva, Verdana, sans-serif',
       ),
     ),
-    buttonTheme: ButtonThemeData(
-      buttonColor: Color(0xFF007EE5), // Dropbox Blue Accent
+    buttonTheme: const ButtonThemeData(
+      buttonColor: Color(0xFF8A2BE2), // Purple Accent
       textTheme: ButtonTextTheme.primary,
     ),
   );
 }
-
-
-
-*/
-
 
 
 
  //   --------------------mint green --------------------------
-import 'package:flutter/material.dart';
+// import 'package:flutter/material.dart';
 
-class AppThemes {
-  static ThemeData lightMode = ThemeData(
-    brightness: Brightness.light,
-    colorScheme: const ColorScheme.light(
-      primary: Color(0xFF4CAF50), // Fresh Green
-      onPrimary: Colors.white, // Text/icons on primary
-      secondary: Color(0xFF00796B), // Teal
-      onSecondary: Colors.white, // Text/icons on secondary
-      background: Color(0xFFE8F5E9), // Light Green Background
-      onBackground: Colors.black, // Text/icons on background
-      surface: Colors.white, // Card/Container background
-      onSurface: Colors.black, // Text/icons on surface
-      error: Colors.red, // Error color
-      onError: Colors.white, // Text/icons on error
-    ),
-    scaffoldBackgroundColor: Color(0xFFE8F5E9), // Light Green Background
-    appBarTheme: const AppBarTheme(
-      backgroundColor: Colors.white, // AppBar Background
-      titleTextStyle: TextStyle(
-        color: Colors.black,
-        fontSize: 24,
-        fontWeight: FontWeight.bold,
-        fontFamily: 'Poppins, "Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
-      ),
-      iconTheme: IconThemeData(color: Color(0xFF4CAF50)), // Green Icon Color
-    ),
-    drawerTheme: DrawerThemeData(
-      backgroundColor: Color(0xFF00796B), // Teal Sidebar Background
-    ),
-    textTheme: const TextTheme(
-      titleLarge: TextStyle(
-        fontSize: 24,
-        color: Colors.black,
-        fontFamily: 'Poppins, "Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
-      ),
-      titleMedium: TextStyle(
-        color: Colors.black,
-        fontSize: 22,
-        fontWeight: FontWeight.bold,
-        fontFamily: 'Poppins, "Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
-      ),
-      bodySmall: TextStyle(
-        color: Colors.black,
-        fontSize: 13,
-        fontFamily: 'Poppins, "Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
-      ),
-      bodyMedium: TextStyle(
-        fontSize: 18,
-        color: Colors.black87,
-        fontFamily: 'Poppins, "Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
-      ),
-    ),
-    buttonTheme: ButtonThemeData(
-      buttonColor: Color(0xFF4CAF50), // Fresh Green Accent
-      textTheme: ButtonTextTheme.primary,
-    ),
-  );
+// class AppThemes {
+//   static ThemeData lightMode = ThemeData(
+//     brightness: Brightness.light,
+//     colorScheme: const ColorScheme.light(
+//       primary: Color(0xFF4CAF50), // Fresh Green
+//       onPrimary: Colors.white, // Text/icons on primary
+//       secondary: Color(0xFF00796B), // Teal
+//       onSecondary: Colors.white, // Text/icons on secondary
+//       background: Color(0xFFE8F5E9), // Light Green Background
+//       onBackground: Colors.black, // Text/icons on background
+//       surface: Colors.white, // Card/Container background
+//       onSurface: Colors.black, // Text/icons on surface
+//       error: Colors.red, // Error color
+//       onError: Colors.white, // Text/icons on error
+//     ),
+//     scaffoldBackgroundColor: Color(0xFFE8F5E9), // Light Green Background
+//     appBarTheme: const AppBarTheme(
+//       backgroundColor: Colors.white, // AppBar Background
+//       titleTextStyle: TextStyle(
+//         color: Colors.black,
+//         fontSize: 24,
+//         fontWeight: FontWeight.bold,
+//         fontFamily: 'Poppins, "Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
+//       ),
+//       iconTheme: IconThemeData(color: Color(0xFF4CAF50)), // Green Icon Color
+//     ),
+//     drawerTheme: DrawerThemeData(
+//       backgroundColor: Color(0xFF00796B), // Teal Sidebar Background
+//     ),
+//     textTheme: const TextTheme(
+//       titleLarge: TextStyle(
+//         fontSize: 24,
+//         color: Colors.black,
+//         fontFamily: 'Poppins, "Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
+//       ),
+//       titleMedium: TextStyle(
+//         color: Colors.black,
+//         fontSize: 22,
+//         fontWeight: FontWeight.bold,
+//         fontFamily: 'Poppins, "Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
+//       ),
+//       bodySmall: TextStyle(
+//         color: Colors.black,
+//         fontSize: 13,
+//         fontFamily: 'Poppins, "Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
+//       ),
+//       bodyMedium: TextStyle(
+//         fontSize: 18,
+//         color: Colors.black87,
+//         fontFamily: 'Poppins, "Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
+//       ),
+//     ),
+//     buttonTheme: ButtonThemeData(
+//       buttonColor: Color(0xFF4CAF50), // Fresh Green Accent
+//       textTheme: ButtonTextTheme.primary,
+//     ),
+//   );
 
-  static ThemeData darkMode = ThemeData(
-    brightness: Brightness.dark,
-    colorScheme: const ColorScheme.dark(
-      primary: Color(0xFF4CAF50), // Fresh Green
-      onPrimary: Colors.black, // Text/icons on primary
-      secondary: Color(0xFF00796B), // Teal
-      onSecondary: Colors.white, // Text/icons on secondary
-      background: Color(0xFF303030), // Dark Grey Background
-      onBackground: Colors.white, // Text/icons on background
-      surface:Color(0xFF0D1B2A), // Card/Container background
-      onSurface: Colors.white, // Text/icons on surface
-      error: Colors.redAccent, // Error color
-      onError: Colors.white, // Text/icons on error
-    ),
-    scaffoldBackgroundColor: Color(0xFF303030), // Dark Grey Background
-    appBarTheme: AppBarTheme(
-      backgroundColor: Color(0xFF303030), // Dark Grey AppBar
-      titleTextStyle: TextStyle(
-        color: Colors.white,
-        fontSize: 24,
-        fontWeight: FontWeight.bold,
-        fontFamily: 'Poppins, "Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
-      ),
-      iconTheme: IconThemeData(color: Color(0xFF4CAF50)), // Green Icon Color
-    ),
-    drawerTheme: DrawerThemeData(
-      backgroundColor: Color(0xFF00796B), // Teal Sidebar Background
-    ),
-    textTheme: const TextTheme(
-      titleLarge: TextStyle(
-        fontSize: 24,
-        color: Colors.white,
-        fontFamily: 'Poppins, "Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
-      ),
-      titleMedium: TextStyle(
-        color: Colors.white,
-        fontSize: 22,
-        fontWeight: FontWeight.bold,
-        fontFamily: 'Poppins, "Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
-      ),
-      bodySmall: TextStyle(
-        color: Colors.white,
-        fontSize: 13,
-        fontFamily: 'Poppins, "Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
-      ),
-      bodyMedium: TextStyle(
-        fontSize: 18,
-        color: Colors.white70,
-        fontFamily: 'Poppins, "Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
-      ),
-    ),
-    buttonTheme: ButtonThemeData(
-      buttonColor: Color(0xFF4CAF50), // Fresh Green Accent
-      textTheme: ButtonTextTheme.primary,
-    ),
-  );
-}
+//   static ThemeData darkMode = ThemeData(
+//     brightness: Brightness.dark,
+//     colorScheme: const ColorScheme.dark(
+//       primary: Color(0xFF4CAF50), // Fresh Green
+//       onPrimary: Colors.black, // Text/icons on primary
+//       secondary: Color(0xFF00796B), // Teal
+//       onSecondary: Colors.white, // Text/icons on secondary
+//       background: Color(0xFF303030), // Dark Grey Background
+//       onBackground: Colors.white, // Text/icons on background
+//       surface:Color(0xFF0D1B2A), // Card/Container background
+//       onSurface: Colors.white, // Text/icons on surface
+//       error: Colors.redAccent, // Error color
+//       onError: Colors.white, // Text/icons on error
+//     ),
+//     scaffoldBackgroundColor: Color(0xFF303030), // Dark Grey Background
+//     appBarTheme: AppBarTheme(
+//       backgroundColor: Color(0xFF303030), // Dark Grey AppBar
+//       titleTextStyle: TextStyle(
+//         color: Colors.white,
+//         fontSize: 24,
+//         fontWeight: FontWeight.bold,
+//         fontFamily: 'Poppins, "Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
+//       ),
+//       iconTheme: IconThemeData(color: Color(0xFF4CAF50)), // Green Icon Color
+//     ),
+//     drawerTheme: DrawerThemeData(
+//       backgroundColor: Color(0xFF00796B), // Teal Sidebar Background
+//     ),
+//     textTheme: const TextTheme(
+//       titleLarge: TextStyle(
+//         fontSize: 24,
+//         color: Colors.white,
+//         fontFamily: 'Poppins, "Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
+//       ),
+//       titleMedium: TextStyle(
+//         color: Colors.white,
+//         fontSize: 22,
+//         fontWeight: FontWeight.bold,
+//         fontFamily: 'Poppins, "Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
+//       ),
+//       bodySmall: TextStyle(
+//         color: Colors.white,
+//         fontSize: 13,
+//         fontFamily: 'Poppins, "Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
+//       ),
+//       bodyMedium: TextStyle(
+//         fontSize: 18,
+//         color: Colors.white70,
+//         fontFamily: 'Poppins, "Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
+//       ),
+//     ),
+//     buttonTheme: ButtonThemeData(
+//       buttonColor: Color(0xFF4CAF50), // Fresh Green Accent
+//       textTheme: ButtonTextTheme.primary,
+//     ),
+//   );
+// }
 
 
 

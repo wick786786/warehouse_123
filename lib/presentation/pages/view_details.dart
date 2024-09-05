@@ -1,3 +1,4 @@
+import 'package:intl/intl.dart';
 import 'package:warehouse_phase_1/src/core/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:pdf/pdf.dart';
@@ -22,6 +23,32 @@ class DeviceDetails extends StatelessWidget {
       {super.key,
       required this.details,
       required this.hardwareChecks}); //required this.hardwareChecks});
+  String _formatToLocalTime(String? createdAt) {
+    // Check if createdAt is null or not in a valid date format
+    if (createdAt == null || createdAt == 'N/A') {
+      return 'Invalid Date'; // Return a fallback value
+    }
+
+    try {
+      // Parse the createdAt string to DateTime (assuming it's in ISO 8601 format)
+      DateTime utcTime = DateTime.parse(createdAt).toLocal();
+      print("utcTime:$utcTime");
+
+      // Convert UTC time to Indian Standard Time (IST)
+      DateTime istTime = utcTime.add(const Duration(
+          hours: 5, minutes: 30)); // Corrected to 5 hours 30 minutes for IST
+
+      // Format the IST time as a string
+      String formattedTime =
+          "${istTime.day}-${istTime.month}-${istTime.year} ${istTime.hour}:${istTime.minute}:${istTime.second}";
+          print(formattedTime);
+
+      return formattedTime;
+    } catch (e) {
+      // Handle any parsing errors
+      return 'Invalid Date'; // Return a fallback value
+    }
+  }
 
   Future<void> _downloadReport() async {
     try {
@@ -108,9 +135,9 @@ class DeviceDetails extends StatelessWidget {
                 ),
                 pw.SizedBox(height: 12),
                 pw.Text('OS Name: Android ',
-                    style: pw.TextStyle(color: PdfColors.black)),
+                    style: const pw.TextStyle(color: PdfColors.black)),
                 pw.Text('OS Version: 14',
-                    style: pw.TextStyle(color: PdfColors.black)),
+                    style: const pw.TextStyle(color: PdfColors.black)),
                 pw.Divider(height: 32, thickness: 2),
                 pw.Text(
                   'Hardware Check',
@@ -191,7 +218,7 @@ class DeviceDetails extends StatelessWidget {
     return MaterialApp(
       theme: AppThemes.lightMode, // Apply the light theme here
       home: Scaffold(
-        backgroundColor: Theme.of(context).colorScheme.background,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         appBar: AppBar(
           leading: IconButton(
             icon: const Icon(
@@ -221,7 +248,7 @@ class DeviceDetails extends StatelessWidget {
                 child: Text(
                   'Device Diagnostic Report',
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        color: Theme.of(context).colorScheme.onBackground,
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                 ),
               ),
@@ -241,7 +268,7 @@ class DeviceDetails extends StatelessWidget {
               Text(
                 'Hardware Details',
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: Theme.of(context).colorScheme.onBackground,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
               ),
               const SizedBox(height: 8),
@@ -281,7 +308,7 @@ class DeviceDetails extends StatelessWidget {
               Text(
                 'Software Information',
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: Theme.of(context).colorScheme.onBackground,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
               ),
               const SizedBox(height: 8),
@@ -305,7 +332,7 @@ class DeviceDetails extends StatelessWidget {
               Text(
                 'Hardware Check',
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: Theme.of(context).colorScheme.onBackground,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
               ),
               const SizedBox(height: 8),
@@ -376,17 +403,21 @@ class DeviceDetails extends StatelessWidget {
               Text(
                 'Report Details',
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: Theme.of(context).colorScheme.onBackground,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
               ),
               const SizedBox(height: 8),
               ListTile(
                 contentPadding: EdgeInsets.zero,
-                leading: Icon(Icons.calendar_today,
-                    color: Theme.of(context).colorScheme.secondary),
-                title: Text('Diagnostic Date: ${details['createdAt']}',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurface)),
+                leading: Icon(
+                  Icons.calendar_today,
+                  color: Theme.of(context).colorScheme.secondary,
+                ),
+                title: Text(
+                  'Diagnostic Date: ${_formatToLocalTime(details['createdAt'] ?? 'N/A')}',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurface),
+                ),
               ),
               const SizedBox(height: 32),
               Center(

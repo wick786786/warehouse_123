@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 
 class LanguageSelectorScreen extends StatefulWidget {
+  const LanguageSelectorScreen({super.key});
+
   @override
   _LanguageSelectorScreenState createState() => _LanguageSelectorScreenState();
 }
@@ -18,7 +20,7 @@ class _LanguageSelectorScreenState extends State<LanguageSelectorScreen> {
       ),
       body: Center(
         child: DropdownButton<String>(
-          hint: Text('Select Language'),
+          hint: const Text('Select Language'),
           value: _selectedLanguage,
           onChanged: (String? newValue) {
             setState(() {

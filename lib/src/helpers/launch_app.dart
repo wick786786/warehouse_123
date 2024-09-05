@@ -25,11 +25,11 @@ class LaunchApp extends StatelessWidget {
 
     return apkFile;
   }
-
+  
   Future<String> launchApplication(String deviceId, String packageName, String mainActivity) async {
   // Extract the APK from assets to the temporary directory
   File apkFile = await extractApkFromAssets();
-
+  
   // Check if the APK file was successfully extracted
   if (!apkFile.existsSync()) {
     return 'Failed to extract APK file from assets.';

@@ -40,6 +40,7 @@ class AdbClient {
     final batterylevel=await executeShellCommand(deviceId, 'dumpsys battery | grep level');
     final ram = await getApproximateRam(deviceId);
     final rom = await getApproximateRom(deviceId);
+    final oem=await executeShellCommand(deviceId, 'getprop sys.oem_unlock_allowed');
     
     return {
       'model': model,
@@ -51,6 +52,7 @@ class AdbClient {
       'batterylevel': batterylevel,
       'ram': ram,
       'rom': rom,
+      'oem':oem
     };
   }
 
@@ -109,12 +111,12 @@ class AdbClient {
     final memTotalKb = int.tryParse(memInfo.split(RegExp(r'\s+'))[1] ?? '0') ?? 0;
     final memTotalGb = (memTotalKb / (1024 * 1024)).toStringAsFixed(2);
     final approximateRam = _roundToStandardSize(double.parse(memTotalGb));
-    return '${approximateRam} GB';
+    return '$approximateRam GB';
   }
 
   Future<String> getApproximateRom(String deviceId) async {
   final storageInfo = await executeShellCommand(deviceId, 'df -h | grep /data');
-  if ((storageInfo).length==0) {
+  if ((storageInfo).isEmpty) {
     return 'Unknown';
   }
   

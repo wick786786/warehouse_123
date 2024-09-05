@@ -38,12 +38,12 @@ class CrackCheck{
   try {
     // Find the most recent video file
     var fileNameResult = await shell.run('adb shell ls -t /sdcard/Movies/CameraX-Video/ | head -n 1');
-    print('fileNameResult: ${fileNameResult}');
+    print('fileNameResult: $fileNameResult');
     var fileName = fileNameResult.outText.trim();
-    print('fileName: ${fileName}');
+    print('fileName: $fileName');
 
     // Use your specified desktop path
-    final desktopPath = 'C:\\Users\\thesa\\OneDrive\\Desktop';
+    const desktopPath = 'C:\\Users\\thesa\\OneDrive\\Desktop';
 
     print('Desktop path: $desktopPath');
 
@@ -115,7 +115,7 @@ class CrackCheck{
   final filename = path.basename(filePath);
 
   try {
-    final url = 'https://crackapi.getinstacash.in/video-crack/upload';
+    const url = 'https://crackapi.getinstacash.in/video-crack/upload';
     final request = http.MultipartRequest('POST', Uri.parse(url));
     request.headers['Authorization'] =
         'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTY3ODQ0NDcxNywianRpIjoiYmRmMTFmZjgtMjIzMS00ODE3LTlhMjItMDkxOWNjNGVhZGI4IiwidHlwZSI6ImFjY2VzcyIsInN1YiI6InByYXRlZWtnb2VsIiwibmJmIjoxNjc4NDQ0NzE3LCJleHAiOjE3NDE1MTY3MTd9.ZOuYfpVwYZZ_jxnwzppNOfnWznpHQiOVsD8u5i1zoIM'; // Your token here
