@@ -76,6 +76,7 @@ class LogCat {
           if(val==true)
           {
               await SqlHelper.deleteItemwithId(deviceId);
+              await deleteJsonFile(deviceId);
           }
           await DeviceProgressManager.resetProgress(deviceId);
           _deviceProgress[deviceId] = 0;
@@ -125,6 +126,7 @@ class LogCat {
         }
 
         testResults[deviceId] = deviceResult;
+        print("test result :$testResults");
       });
 
       process.stderr.transform(Utf8Decoder()).listen((data) {

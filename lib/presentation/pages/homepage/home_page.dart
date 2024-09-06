@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'package:warehouse_phase_1/presentation/pages/homepage/widgets/device_list_widget.dart';
 import 'package:warehouse_phase_1/presentation/pages/homepage/widgets/device_manage.dart';
@@ -53,6 +54,26 @@ class _MyHomePageState extends State<MyHomePage> {
     super.initState();
     asyncFunction();
   }
+
+ void _showErrorDialog(BuildContext context, String errorMessage) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text('App Launch Error'),
+        content: Text(errorMessage),
+        actions: [
+          TextButton(
+            onPressed: () {
+              SystemNavigator.pop(); // Close the app
+            },
+            child: const Text('OK'),
+          ),
+        ],
+      );
+    },
+  );
+}
 
   Future<void> asyncFunction() async {
     _startTrackingDevices();
@@ -115,15 +136,22 @@ class _MyHomePageState extends State<MyHomePage> {
               launch
                   .launchApplication(deviceId, packageName, mainActivity)
                   .then((result) {
-                print('Command result: $result');
+                if (result.contains('failed') ||
+                    result.contains('unresponsive')) {
+                  _showErrorDialog(
+                      context, result); // Show error dialog if launch failed
+                } else {
+                  print('App launched successfully.');
+                }
               }).catchError((e) {
-                print('Error: $e');
                 String modelName =
                     connectedDevices[deviceId]?['model'] ?? 'Unknown Model';
                 setState(() {
                   adbError = 'Error launching application on $modelName: $e';
                 });
+                _showErrorDialog(context, 'Error launching application: $e');
               });
+
               _startLogCat(deviceId); // Start LogCat tracking for this device
             }
           }
@@ -174,14 +202,14 @@ class _MyHomePageState extends State<MyHomePage> {
         if (deviceSet.contains(deviceId)) {
           double newProgress = progress / 100;
           setState(() {
-            deviceProgress[deviceId] =min(1, newProgress);
+            deviceProgress[deviceId] = min(1, newProgress);
           });
 
           // Save progress
           await DeviceProgressManager.saveProgress(deviceId, newProgress);
 
-          if (newProgress >= 1.0 && !(resultsSaved[deviceId] ?? false)) {
-            resultsSaved[deviceId] = true;
+          if (newProgress >= 1.0 ) {
+            //resultsSaved[deviceId] = true;
             await _saveResults(deviceId);
             // Reset progress after saving results
 

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart'; // Ensure this import is correct
 import 'package:warehouse_phase_1/presentation/DeviceCard/device_card.dart';
-import 'package:warehouse_phase_1/presentation/DeviceCard/widgets/device_progress.dart';
+// import 'package:warehouse_phase_1/presentation/DeviceCard/widgets/device_progress.dart';
 
  // Adjust the import as per your file structure
 
@@ -47,6 +47,10 @@ class DeviceListWidget extends StatelessWidget {
             decoration: BoxDecoration(
               color: theme.colorScheme.surface,
               borderRadius: BorderRadius.circular(12.0),
+               border: Border.all( // Add this to create a colored border
+      color: theme.primaryColor, // Border color
+      width: 2.0, // Border width
+    ),
               boxShadow: [
                 BoxShadow(
                   color: theme.shadowColor.withOpacity(0.5),
