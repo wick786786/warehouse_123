@@ -3,7 +3,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart'; // Ensure this imp
 import 'package:warehouse_phase_1/presentation/DeviceCard/device_card.dart';
 // import 'package:warehouse_phase_1/presentation/DeviceCard/widgets/device_progress.dart';
 
- // Adjust the import as per your file structure
+// Adjust the import as per your file structure
 
 class DeviceListWidget extends StatelessWidget {
   final Map<String, Map<String, String>> connectedDevices; // Updated to Map
@@ -47,10 +47,11 @@ class DeviceListWidget extends StatelessWidget {
             decoration: BoxDecoration(
               color: theme.colorScheme.surface,
               borderRadius: BorderRadius.circular(12.0),
-               border: Border.all( // Add this to create a colored border
-      color: theme.primaryColor, // Border color
-      width: 2.0, // Border width
-    ),
+              border: Border.all(
+                // Add this to create a colored border
+                color: theme.primaryColor, // Border color
+                width: 2.0, // Border width
+              ),
               boxShadow: [
                 BoxShadow(
                   color: theme.shadowColor.withOpacity(0.5),

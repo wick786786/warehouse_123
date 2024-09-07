@@ -52,6 +52,8 @@ class DeviceDetails extends StatelessWidget {
 
   Future<void> _downloadReport() async {
     try {
+       // Get the application document directory for saving the report
+    //final directory = await getApplicationDocumentsDirectory();
       // Set up the warehouse and device ID folder paths
       final warehouseDir =
           Directory(path.join(Directory.current.path, 'warehouse'));
@@ -71,7 +73,7 @@ class DeviceDetails extends StatelessWidget {
         allowedExtensions: ['pdf'],
         type: FileType.custom,
         lockParentWindow: true,
-        fileName: 'device_diagnostic_report.pdf',
+        fileName: 'device_diagnostic_report_${details['iemi']}.pdf',
       );
 
       if (outputFile == null) {

@@ -120,8 +120,14 @@ class LogCat {
 
           deviceResult.add(jsonData);
 
+          if(jsonData.length*5>=85)
+          {
+               _deviceProgress[deviceId]=(jsonData.length * 5)-5;
+          }
           // Increment progress
+          else{
           _deviceProgress[deviceId] = jsonData.length * 5;
+          }
           _progressControllers[deviceId]?.add(_deviceProgress[deviceId]!);
         }
 

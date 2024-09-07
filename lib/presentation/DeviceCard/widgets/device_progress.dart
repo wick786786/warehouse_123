@@ -23,11 +23,30 @@ class DeviceProgressSection extends StatelessWidget {
         Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('Test completed'),
-              TextButton(
+              // const Text('Test completed'),
+
+              Column(
+                children: [
+                
+                  Row(
+                    children: [
+                      const Text('Test completed'),
+                      SizedBox(width:5),
+                      TextButton(
+                        onPressed: onViewDetailsPressed,
+                        child: const Text('View Details'),
+                      ),
+                      
+                    ],
+                  ),
+                   SizedBox(height:10),
+                   TextButton(
                 onPressed: onViewDetailsPressed,
-                child: const Text('View Details'),
+                child: const Text('Data Wipe'),
               ),
+                ],
+              ),
+              
             ],
           )
           
