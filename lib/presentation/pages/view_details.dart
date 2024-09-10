@@ -41,7 +41,7 @@ class DeviceDetails extends StatelessWidget {
       // Format the IST time as a string
       String formattedTime =
           "${istTime.day}-${istTime.month}-${istTime.year} ${istTime.hour}:${istTime.minute}:${istTime.second}";
-          print(formattedTime);
+      print(formattedTime);
 
       return formattedTime;
     } catch (e) {
@@ -52,8 +52,8 @@ class DeviceDetails extends StatelessWidget {
 
   Future<void> _downloadReport() async {
     try {
-       // Get the application document directory for saving the report
-    //final directory = await getApplicationDocumentsDirectory();
+      // Get the application document directory for saving the report
+      //final directory = await getApplicationDocumentsDirectory();
       // Set up the warehouse and device ID folder paths
       final warehouseDir =
           Directory(path.join(Directory.current.path, 'warehouse'));
@@ -298,6 +298,44 @@ class DeviceDetails extends StatelessWidget {
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         color: Theme.of(context).colorScheme.onSurface)),
               ),
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: Icon(Icons.model_training,
+                    color: Theme.of(context).colorScheme.secondary),
+                title: Text('RAM: ${details['ram']}',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurface)),
+              ),
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: Icon(Icons.model_training,
+                    color: Theme.of(context).colorScheme.secondary),
+                title: Text(
+                  'MDM STATUS: ${details['mdm_status'] == '1' ? 'Unlocked' : 'Locked'}',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurface),
+                ),
+              ),
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: Icon(Icons.model_training,
+                    color: Theme.of(context).colorScheme.secondary),
+                title: Text(
+                  'OEM STATUS: ${details['oem'] == '1' ? 'Unlocked' : 'Locked'}',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurface),
+                ),
+              ),
+              //  ListTile(
+              //   contentPadding: EdgeInsets.zero,
+              //   leading: Icon(Icons.model_training,
+              //       color: Theme.of(context).colorScheme.secondary),
+              //   title: Text(
+              //     'Carrier Lock Status: ${details['carrier_lock']}',
+              //     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              //         color: Theme.of(context).colorScheme.onSurface),
+              //   ),
+              // ),
               ListTile(
                 contentPadding: EdgeInsets.zero,
                 leading: Icon(Icons.confirmation_number,

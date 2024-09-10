@@ -68,6 +68,26 @@ class _DeviceCardState extends State<DeviceCard> {
     });
     // _saveProgress(0); // Reset the progress in SharedPreferences
   }
+  Future<void> rebootDeviceToBootloader() async {
+    String deviceId=widget.device['id']!;
+  try {
+    // Run the adb reboot bootloader command for a specific device
+    final result = await Process.run(
+      'adb',
+      ['-s', deviceId, 'reboot', 'bootloader'],
+    );
+
+    // Check if the command was successful
+    if (result.exitCode == 0) {
+      print('Device $deviceId successfully rebooted to bootloader.');
+    } else {
+      print('Failed to reboot device $deviceId to bootloader. Error: ${result.stderr}');
+    }
+  } catch (e) {
+    print('Error executing ADB command: $e');
+  }
+}
+
 
   Future<void> _checkDevicePresence() async {
     final items = await SqlHelper.getItems();
@@ -211,6 +231,10 @@ class _DeviceCardState extends State<DeviceCard> {
                   isDevicePresent: _isDevicePresent,
                   onViewDetailsPressed: () => _loadHardwareChecks(context),
                   onResetPressed: _resetPercent,
+                  //onDataWipe:rebootDeviceToBootloader()
+                  onDataWipe: () async {
+                  await rebootDeviceToBootloader();
+                },
                 ),
               ],
             ),

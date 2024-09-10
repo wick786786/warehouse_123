@@ -19,7 +19,7 @@ class DeviceStatusSection extends StatelessWidget {
           borderRadius: const BorderRadius.all(Radius.circular(10.0)),
           child: Container(
             padding: const EdgeInsets.all(5),
-           // width: 50.0,
+            // width: 50.0,
             color: theme.colorScheme.primary.withOpacity(0.2),
             child: Column(
               children: [
@@ -45,13 +45,15 @@ class DeviceStatusSection extends StatelessWidget {
             color: theme.colorScheme.primary.withOpacity(0.2),
             child: Column(
               children: [
-                Icon(Icons.battery_6_bar_rounded,
-                    color: theme.colorScheme.primary),
                 Text(
-                  device['batterylevel'] != null
-                      ? device['batterylevel']!.substring(
-                          min<int>(device['batterylevel']!.length, 7))
-                      : 'N/A',
+                  '${device['rom']}',
+                  style: theme.textTheme.bodySmall?.copyWith(
+                      fontWeight: FontWeight.w500,
+                      color: theme.colorScheme.primary),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'ROM',
                   style: theme.textTheme.bodySmall?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
@@ -67,16 +69,15 @@ class DeviceStatusSection extends StatelessWidget {
           borderRadius: const BorderRadius.all(Radius.circular(10.0)),
           child: Container(
             padding: const EdgeInsets.all(5),
-           // width: 50.0,
+            // width: 50.0,
             color: theme.colorScheme.primary.withOpacity(0.2),
             child: Column(
               children: [
                 Text(
                   '${device['ram']}',
                   style: theme.textTheme.bodySmall?.copyWith(
-                    fontWeight: FontWeight.w500,
-                    color: theme.colorScheme.primary
-                  ),
+                      fontWeight: FontWeight.w500,
+                      color: theme.colorScheme.primary),
                 ),
                 const SizedBox(height: 4),
                 Text(
@@ -96,7 +97,7 @@ class DeviceStatusSection extends StatelessWidget {
           borderRadius: const BorderRadius.all(Radius.circular(10.0)),
           child: Container(
             padding: const EdgeInsets.all(5),
-          //  width: 50.0,
+            //  width: 50.0,
             color: theme.colorScheme.primary.withOpacity(0.2),
             child: Column(
               children: [

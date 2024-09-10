@@ -55,25 +55,25 @@ class _MyHomePageState extends State<MyHomePage> {
     asyncFunction();
   }
 
- void _showErrorDialog(BuildContext context, String errorMessage) {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: const Text('App Launch Error'),
-        content: Text(errorMessage),
-        actions: [
-          TextButton(
-            onPressed: () {
-              SystemNavigator.pop(); // Close the app
-            },
-            child: const Text('OK'),
-          ),
-        ],
-      );
-    },
-  );
-}
+  void _showErrorDialog(BuildContext context, String errorMessage) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('App Launch Error'),
+          content: Text(errorMessage),
+          actions: [
+            TextButton(
+              onPressed: () {
+                SystemNavigator.pop(); // Close the app
+              },
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   Future<void> asyncFunction() async {
     _startTrackingDevices();
@@ -208,7 +208,7 @@ class _MyHomePageState extends State<MyHomePage> {
           // Save progress
           await DeviceProgressManager.saveProgress(deviceId, newProgress);
 
-          if (newProgress >= 1.0 ) {
+          if (newProgress >= 1.0) {
             //resultsSaved[deviceId] = true;
             await _saveResults(deviceId);
             // Reset progress after saving results
@@ -237,6 +237,11 @@ class _MyHomePageState extends State<MyHomePage> {
         connectedDevices[deviceId]?['model'] ?? '',
         connectedDevices[deviceId]?['imeiOutput'] ?? '',
         connectedDevices[deviceId]?['serialNumber'] ?? '',
+        connectedDevices[deviceId]?['ram'] ?? '',
+        connectedDevices[deviceId]?['mdm_status'] ?? '',
+        connectedDevices[deviceId]?['oem'] ?? '',
+        // connectedDevices[deviceId]?['rom'] ?? '',
+        // connectedDevices[deviceId]?['carrier_lock'] ?? '',
       );
       await LogCat.createJsonFile(deviceId);
       print("JSON DEBUG");

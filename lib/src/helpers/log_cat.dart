@@ -11,8 +11,12 @@ class LogCat {
       {}; // Track progress values separately
      // static bool device_check=false;
   static Map<String, List<Map<String, dynamic>>> testResults = {};
-  static final Map<String, StreamController<void>> _restartControllers =
-      {}; // For restart events
+  // static final Map<String, StreamController<void>> _restartControllers =
+  //     {}; // For restart events
+  static Map<String,String>rom={};
+  static Map<String,String>network_lock={};
+
+  
 
   static Stream<int> getProgressStream(String deviceId) {
     if (!_progressControllers.containsKey(deviceId)) {
@@ -42,12 +46,12 @@ class LogCat {
     }
   }
 
-  static Stream<void> getRestartStream(String deviceId) {
-    if (!_restartControllers.containsKey(deviceId)) {
-      _restartControllers[deviceId] = StreamController<void>.broadcast();
-    }
-    return _restartControllers[deviceId]!.stream;
-  }
+  // static Stream<void> getRestartStream(String deviceId) {
+  //   if (!_restartControllers.containsKey(deviceId)) {
+  //     _restartControllers[deviceId] = StreamController<void>.broadcast();
+  //   }
+  //   return _restartControllers[deviceId]!.stream;
+  // }
   static Future<bool> presenceCheck(String deviceId)async
   {
        final items = await SqlHelper.getItems();

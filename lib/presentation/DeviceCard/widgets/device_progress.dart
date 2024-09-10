@@ -5,6 +5,7 @@ class DeviceProgressSection extends StatelessWidget {
   final bool isDevicePresent;
   final VoidCallback onViewDetailsPressed;
   final VoidCallback onResetPressed;
+  final Future<void> Function()? onDataWipe; // Updated type for async callback
 
   const DeviceProgressSection({
     super.key,
@@ -12,44 +13,42 @@ class DeviceProgressSection extends StatelessWidget {
     required this.isDevicePresent,
     required this.onViewDetailsPressed,
     required this.onResetPressed,
+    this.onDataWipe, // Optional parameter for data wipe function
   });
 
   @override
   Widget build(BuildContext context) {
     print('is device present in progress bar :$isDevicePresent');
     final theme = Theme.of(context);
-    return  progress! >= 1.0 || isDevicePresent
-        ? 
-        Row(
+    return progress! >= 1.0 || isDevicePresent
+        ? Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              // const Text('Test completed'),
-
               Column(
                 children: [
-                
                   Row(
                     children: [
                       const Text('Test completed'),
-                      SizedBox(width:5),
+                      const SizedBox(width: 5),
                       TextButton(
                         onPressed: onViewDetailsPressed,
                         child: const Text('View Details'),
                       ),
-                      
                     ],
                   ),
-                   SizedBox(height:10),
-                   TextButton(
-                onPressed: onViewDetailsPressed,
-                child: const Text('Data Wipe'),
-              ),
+                  const SizedBox(height: 10),
+                  TextButton(
+                    onPressed: () async {
+                      if (onDataWipe != null) {
+                        await onDataWipe!(); // Call the data wipe function
+                      }
+                    },
+                    child: const Text('Data Wipe'),
+                  ),
                 ],
               ),
-              
             ],
           )
-          
         : Column(
             children: [
               LinearProgressIndicator(

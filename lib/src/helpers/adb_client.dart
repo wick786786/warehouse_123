@@ -21,6 +21,72 @@ class AdbClient {
     }
     return devices;
   }
+  Future<String> getApproximateRom(String deviceId) async {
+    final storageInfo = await executeShellCommand(deviceId, 'df -h | grep /data');
+    if (storageInfo.isEmpty) {
+      return 'Unknown';
+    }
+  
+    final sizeParts = storageInfo.split(RegExp(r'\s+'));
+    if (sizeParts.length < 4) {
+      return 'Unknown';
+    }
+
+    final totalSizeStr = sizeParts[1].replaceAll(RegExp(r'[A-Za-z]'), '');
+    final totalSizeGB = _parseSizeToGB(totalSizeStr, sizeParts[1]);
+
+    final formattedSize = _formatSizeInGB(totalSizeGB);
+
+    return '$formattedSize GB';
+  }
+
+  double _parseSizeToGB(String size, String sizeWithUnit) {
+    final unit = sizeWithUnit.replaceAll(RegExp(r'[0-9]'), '');
+    final value = double.tryParse(size) ?? 0.0;
+  
+    switch (unit) {
+      case 'T':
+        return value * 1024; // Terabytes to GB
+      case 'G':
+        return value; // Gigabytes
+      case 'M':
+        return value / 1024; // Megabytes to GB
+      case 'K':
+        return value / (1024 * 1024); // Kilobytes to GB
+      default:
+        return value; // Assume GB if unit is not specified
+    }
+  }
+
+  // Implementing the formatSize logic in Dart
+  int _formatSizeInGB(double size) {
+    int totalSize = size.round(); // Converting double size to an integer value in GB
+    
+    // Logic to approximate the size based on standard values
+    if (totalSize == 0) {
+      totalSize = 0;
+    } else if (totalSize <= 4) {
+      totalSize = 4;
+    } else if (totalSize <= 8) {
+      totalSize = 8;
+    } else if (totalSize <= 16) {
+      totalSize = 16;
+    } else if (totalSize <= 32) {
+      totalSize = 32;
+    } else if (totalSize <= 64) {
+      totalSize = 64;
+    } else if (totalSize <= 128) {
+      totalSize = 128;
+    } else if (totalSize <= 256) {
+      totalSize = 256;
+    } else if (totalSize <= 512) {
+      totalSize = 512;
+    } else if (totalSize <= 1024) {
+      totalSize = 1024;
+    }
+
+    return totalSize;
+  }
 
   Future<String> executeShellCommand(String deviceId, String command) async {
     ProcessResult result = await Process.run('adb', ['-s', deviceId, 'shell', command]);
@@ -41,7 +107,15 @@ class AdbClient {
     final ram = await getApproximateRam(deviceId);
     final rom = await getApproximateRom(deviceId);
     final oem=await executeShellCommand(deviceId, 'getprop sys.oem_unlock_allowed');
-    
+    final carrier_status=await executeShellCommand(deviceId, 'getprop ro.carrier')=='unknown'?'unlocked':'locked';
+    print('carrier status :$carrier_status');
+
+    /*
+    final rom=await getROM();
+    final network_lock=await get networkLock();
+
+
+    */
     return {
       'model': model,
       'manufacturer': manufacturer,
@@ -52,7 +126,8 @@ class AdbClient {
       'batterylevel': batterylevel,
       'ram': ram,
       'rom': rom,
-      'oem':oem
+      'oem':oem,
+      'carrier_lock':carrier_status
     };
   }
 
@@ -114,47 +189,47 @@ class AdbClient {
     return '$approximateRam GB';
   }
 
-  Future<String> getApproximateRom(String deviceId) async {
-  final storageInfo = await executeShellCommand(deviceId, 'df -h | grep /data');
-  if ((storageInfo).isEmpty) {
-    return 'Unknown';
-  }
+//   Future<String> getApproximateRom(String deviceId) async {
+//   final storageInfo = await executeShellCommand(deviceId, 'df -h | grep /data');
+//   if ((storageInfo).isEmpty) {
+//     return 'Unknown';
+//   }
   
-  final sizeParts = storageInfo.split(RegExp(r'\s+'));
-  if (sizeParts.length < 4) {
-    return 'Unknown';
-  }
+//   final sizeParts = storageInfo.split(RegExp(r'\s+'));
+//   if (sizeParts.length < 4) {
+//     return 'Unknown';
+//   }
 
-  final totalSizeStr = sizeParts[1].replaceAll(RegExp(r'[A-Za-z]'), '');
-  final usedSizeStr = sizeParts[2].replaceAll(RegExp(r'[A-Za-z]'), '');
-  final availableSizeStr = sizeParts[3].replaceAll(RegExp(r'[A-Za-z]'), '');
+//   final totalSizeStr = sizeParts[1].replaceAll(RegExp(r'[A-Za-z]'), '');
+//   final usedSizeStr = sizeParts[2].replaceAll(RegExp(r'[A-Za-z]'), '');
+//   final availableSizeStr = sizeParts[3].replaceAll(RegExp(r'[A-Za-z]'), '');
 
-  final totalSizeGB = _parseSizeToGB(totalSizeStr, sizeParts[1]);
-  final usedSizeGB = _parseSizeToGB(usedSizeStr, sizeParts[2]);
-  final availableSizeGB = _parseSizeToGB(availableSizeStr, sizeParts[3]);
+//   final totalSizeGB = _parseSizeToGB(totalSizeStr, sizeParts[1]);
+//   final usedSizeGB = _parseSizeToGB(usedSizeStr, sizeParts[2]);
+//   final availableSizeGB = _parseSizeToGB(availableSizeStr, sizeParts[3]);
 
-  final combinedSizeGB = totalSizeGB + usedSizeGB + availableSizeGB;
+//   final combinedSizeGB = totalSizeGB + usedSizeGB + availableSizeGB;
 
-  return _approximateSize(combinedSizeGB);
-}
+//   return _approximateSize(combinedSizeGB);
+// }
 
-double _parseSizeToGB(String size, String sizeWithUnit) {
-  final unit = sizeWithUnit.replaceAll(RegExp(r'[0-9]'), '');
-  final value = double.tryParse(size) ?? 0.0;
+// double _parseSizeToGB(String size, String sizeWithUnit) {
+//   final unit = sizeWithUnit.replaceAll(RegExp(r'[0-9]'), '');
+//   final value = double.tryParse(size) ?? 0.0;
   
-  switch (unit) {
-    case 'T':
-      return value * 1024; // Terabytes to GB
-    case 'G':
-      return value; // Gigabytes
-    case 'M':
-      return value / 1024; // Megabytes to GB
-    case 'K':
-      return value / (1024 * 1024); // Kilobytes to GB
-    default:
-      return value; // Assume GB if unit is not specified
-  }
-}
+//   switch (unit) {
+//     case 'T':
+//       return value * 1024; // Terabytes to GB
+//     case 'G':
+//       return value; // Gigabytes
+//     case 'M':
+//       return value / 1024; // Megabytes to GB
+//     case 'K':
+//       return value / (1024 * 1024); // Kilobytes to GB
+//     default:
+//       return value; // Assume GB if unit is not specified
+//   }
+// }
 
 String _approximateSize(double sizeGB) {
   const sizes = [32, 64, 128, 256, 512, 1024]; // Sizes in GB
