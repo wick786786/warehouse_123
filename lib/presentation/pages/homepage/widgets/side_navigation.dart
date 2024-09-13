@@ -52,32 +52,32 @@ class _SideNavigationState extends State<SideNavigation> {
                     );
                   },
                 ),
-                const SizedBox(height: 28),
-                _buildNavItem(
-                  icon: Icons.hourglass_empty,
-                  text: "trash",
-                  isHovering: _isHoveringUnderProcess,
-                  onEnter: () => setState(() => _isHoveringUnderProcess = true),
-                  onExit: () => setState(() => _isHoveringUnderProcess = false),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const Processing()),
-                    );
-                  },
-                ),
-                const SizedBox(height: 28),
-                _buildNavItem(
-                  icon: Icons.settings,
-                  text: "settings",
-                  isHovering: _isHoveringSettings,
-                  onEnter: () => setState(() => _isHoveringSettings = true),
-                  onExit: () => setState(() => _isHoveringSettings = false),
-                  onTap: () {
-                    // Implement your settings navigation
+                // const SizedBox(height: 28),
+                // _buildNavItem(
+                //   icon: Icons.hourglass_empty,
+                //   text: "trash",
+                //   isHovering: _isHoveringUnderProcess,
+                //   onEnter: () => setState(() => _isHoveringUnderProcess = true),
+                //   onExit: () => setState(() => _isHoveringUnderProcess = false),
+                //   onTap: () {
+                //     Navigator.push(
+                //       context,
+                //       MaterialPageRoute(builder: (context) => const Processing()),
+                //     );
+                //   },
+                // ),
+                // const SizedBox(height: 28),
+                // _buildNavItem(
+                //   icon: Icons.settings,
+                //   text: "settings",
+                //   isHovering: _isHoveringSettings,
+                //   onEnter: () => setState(() => _isHoveringSettings = true),
+                //   onExit: () => setState(() => _isHoveringSettings = false),
+                //   onTap: () {
+                //     // Implement your settings navigation
                     
-                  },
-                ),
+                //   },
+                // ),
                 const SizedBox(height: 28),
                 _buildNavItem(
                   icon: Icons.help_outline,

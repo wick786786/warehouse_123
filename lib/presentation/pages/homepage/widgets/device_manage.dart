@@ -13,8 +13,15 @@ class DeviceProgressManager {
     return prefs.getDouble('$_progressPrefix$deviceId') ?? 0.0;
   }
 
-  static Future<void> resetProgress(String deviceId) async {
+  static Future<void> deleteProgress(String deviceId) async {
     final prefs = await SharedPreferences.getInstance();
-     await prefs.setDouble('$_progressPrefix$deviceId', 0.0);
+    final key = '$_progressPrefix$deviceId';
+
+    if (prefs.containsKey(key)) {
+      await prefs.remove(key);
+      print('Progress for device "$deviceId" deleted.');
+    } else {
+      print('No progress found for device "$deviceId".');
+    }
   }
 }

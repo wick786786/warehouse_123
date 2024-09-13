@@ -107,7 +107,7 @@ class AdbClient {
     final ram = await getApproximateRam(deviceId);
     final rom = await getApproximateRom(deviceId);
     final oem=await executeShellCommand(deviceId, 'getprop sys.oem_unlock_allowed');
-    final carrier_status=await executeShellCommand(deviceId, 'getprop ro.carrier')=='unknown'?'unlocked':'locked';
+    final carrier_status=await executeShellCommand(deviceId, 'getprop ro.carrier')=='locked'?'locked':'unlocked';
     print('carrier status :$carrier_status');
 
     /*

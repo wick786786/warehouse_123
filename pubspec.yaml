@@ -61,6 +61,8 @@ dependencies:
   rxdart: ^0.28.0
   shared_preferences: ^2.3.2
   collection: ^1.18.0
+  flutter_phoenix: ^1.1.1
+  fluttertoast: ^8.2.8
   
   #dio: ^5.5.0+1
   #open_filex: ^4.4.0

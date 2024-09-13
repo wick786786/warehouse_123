@@ -9,9 +9,10 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:warehouse_phase_1/src/core/constants.dart';
 import 'presentation/pages/login_page.dart';
 import 'package:window_manager/window_manager.dart';
+
 void main() async {
   SqlHelper.initializeDatabaseFactory();
-  
+
   //  WidgetsFlutterBinding.ensureInitialized();
 
   // // // Initialize the window manager
@@ -33,7 +34,7 @@ void main() async {
   // //   // Show the window after configuration
   // //   await windowManager.show();
   // // });
-  
+
   // final size = await windowManager.getBounds();
   // print('Screen Width: ${size.width}');
   // print('Screen Height: ${size.height}');
@@ -81,8 +82,13 @@ class _MyAppState extends State<MyApp> {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      
-      home: MyHomePage(
+
+       home: //LoginPage(
+      //   title: 'Warehouse Application',
+      //   onLocaleChange: _setLocale,
+      //   onThemeToggle: _toggleTheme,
+      // ),
+      MyHomePage(
         title: 'Warehouse Application',
         onLocaleChange: _setLocale,
         onThemeToggle: _toggleTheme,

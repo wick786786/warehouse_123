@@ -49,12 +49,21 @@ class DeviceDetails extends StatelessWidget {
       return 'Invalid Date'; // Return a fallback value
     }
   }
+  Future<String> executeShellCommand(String deviceId, String command) async {
+    ProcessResult result = await Process.run('adb', ['-s', deviceId, 'shell', command]);
+    if (result.exitCode != 0) {
+      return '';
+    }
+    return result.stdout.toString().trim();
+  }
+
 
   Future<void> _downloadReport() async {
     try {
       // Get the application document directory for saving the report
       //final directory = await getApplicationDocumentsDirectory();
       // Set up the warehouse and device ID folder paths
+       //final androidVersion = await executeShellCommand(details['sno'], 'getprop ro.build.version.release');
       final warehouseDir =
           Directory(path.join(Directory.current.path, 'warehouse'));
       if (!await warehouseDir.exists()) {
@@ -84,10 +93,11 @@ class DeviceDetails extends StatelessWidget {
       // Create PDF document
       final pdf = pw.Document();
       pdf.addPage(
-        pw.Page(
-          build: (pw.Context context) => pw.Padding(
-            padding: const pw.EdgeInsets.all(24),
-            child: pw.Column(
+        pw.MultiPage(
+          pageFormat: PdfPageFormat.a4,
+          margin: const pw.EdgeInsets.all(24),
+          build: (pw.Context context) => [
+            pw.Column(
               crossAxisAlignment: pw.CrossAxisAlignment.start,
               children: [
                 pw.Center(
@@ -100,7 +110,7 @@ class DeviceDetails extends StatelessWidget {
                     ),
                   ),
                 ),
-                pw.SizedBox(height: 24),
+                pw.SizedBox(height: 12),
                 pw.Text(
                   'Diagnose ID: ${details['iemi']}',
                   style: const pw.TextStyle(
@@ -117,14 +127,27 @@ class DeviceDetails extends StatelessWidget {
                     color: PdfColors.black,
                   ),
                 ),
-                pw.SizedBox(height: 12),
+                pw.SizedBox(height: 6),
                 pw.Text('Manufacturer: ${details['manufacturer']}',
                     style: const pw.TextStyle(color: PdfColors.black)),
                 pw.Text('Type: Smartphone',
                     style: const pw.TextStyle(color: PdfColors.black)),
+                pw.Text('RAM: ${details['ram']}',
+                    style: const pw.TextStyle(color: PdfColors.black)),
+                pw.Text('ROM: ${details['rom_gb']}',
+                    style: const pw.TextStyle(color: PdfColors.black)),
                 pw.Text('Model: ${details['model']}',
                     style: const pw.TextStyle(color: PdfColors.black)),
                 pw.Text('IMEI: ${details['iemi']}',
+                    style: const pw.TextStyle(color: PdfColors.black)),
+                pw.Text(
+                    'mdm status: ${details['mdm_status'] == '1' ? 'Unlocked' : 'Locked'}',
+                    style: const pw.TextStyle(color: PdfColors.black)),
+                pw.Text(
+                    'oem status: ${details['oem_status'] == '1' ? 'Unlocked' : 'Locked'}',
+                    style: const pw.TextStyle(color: PdfColors.black)),
+                pw.Text(
+                    'carrier lock status: ${details['carrier_lock_status']}',
                     style: const pw.TextStyle(color: PdfColors.black)),
                 pw.Divider(height: 32, thickness: 2),
                 pw.Text(
@@ -135,10 +158,10 @@ class DeviceDetails extends StatelessWidget {
                     color: PdfColors.black,
                   ),
                 ),
-                pw.SizedBox(height: 12),
+                pw.SizedBox(height: 6),
                 pw.Text('OS Name: Android ',
                     style: const pw.TextStyle(color: PdfColors.black)),
-                pw.Text('OS Version: 14',
+                pw.Text('OS Version: ${details['ver']}',
                     style: const pw.TextStyle(color: PdfColors.black)),
                 pw.Divider(height: 32, thickness: 2),
                 pw.Text(
@@ -149,7 +172,7 @@ class DeviceDetails extends StatelessWidget {
                     color: PdfColors.black,
                   ),
                 ),
-                pw.SizedBox(height: 12),
+                pw.SizedBox(height: 6),
                 pw.Wrap(
                   spacing: 8,
                   runSpacing: 8,
@@ -186,7 +209,7 @@ class DeviceDetails extends StatelessWidget {
                     );
                   }).toList(),
                 ),
-                pw.Divider(height: 32, thickness: 2),
+                pw.Divider(height: 12, thickness: 2),
                 pw.Text(
                   'Report Details',
                   style: pw.TextStyle(
@@ -195,12 +218,13 @@ class DeviceDetails extends StatelessWidget {
                     color: PdfColors.black,
                   ),
                 ),
-                pw.SizedBox(height: 12),
-                pw.Text('Diagnostic Date: ${details['createdAt']}',
+                pw.SizedBox(height: 6),
+                pw.Text(
+                    'Diagnostic Date: ${_formatToLocalTime(details['createdAt'] ?? 'N/A')}',
                     style: const pw.TextStyle(color: PdfColors.black)),
               ],
             ),
-          ),
+          ],
         ),
       );
 
@@ -310,6 +334,14 @@ class DeviceDetails extends StatelessWidget {
                 contentPadding: EdgeInsets.zero,
                 leading: Icon(Icons.model_training,
                     color: Theme.of(context).colorScheme.secondary),
+                title: Text('ROM: ${details['rom_gb']}',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurface)),
+              ),
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: Icon(Icons.model_training,
+                    color: Theme.of(context).colorScheme.secondary),
                 title: Text(
                   'MDM STATUS: ${details['mdm_status'] == '1' ? 'Unlocked' : 'Locked'}',
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -326,16 +358,16 @@ class DeviceDetails extends StatelessWidget {
                       color: Theme.of(context).colorScheme.onSurface),
                 ),
               ),
-              //  ListTile(
-              //   contentPadding: EdgeInsets.zero,
-              //   leading: Icon(Icons.model_training,
-              //       color: Theme.of(context).colorScheme.secondary),
-              //   title: Text(
-              //     'Carrier Lock Status: ${details['carrier_lock']}',
-              //     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              //         color: Theme.of(context).colorScheme.onSurface),
-              //   ),
-              // ),
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: Icon(Icons.model_training,
+                    color: Theme.of(context).colorScheme.secondary),
+                title: Text(
+                  'Carrier Lock Status: ${details['carrier_lock_status']}',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurface),
+                ),
+              ),
               ListTile(
                 contentPadding: EdgeInsets.zero,
                 leading: Icon(Icons.confirmation_number,
@@ -364,7 +396,7 @@ class DeviceDetails extends StatelessWidget {
                 contentPadding: EdgeInsets.zero,
                 leading: Icon(Icons.system_update_alt,
                     color: Theme.of(context).colorScheme.secondary),
-                title: Text('OS Version: 14',
+                title: Text('OS Version: ${details['ver']}',
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         color: Theme.of(context).colorScheme.onSurface)),
               ),

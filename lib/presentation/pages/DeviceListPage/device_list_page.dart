@@ -157,27 +157,27 @@ class _DeviceListPageState extends State<DeviceListPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                StatsCard(
-                    title: AppLocalizations.of(context)!.all_items,
-                    color: 'red',
-                    devices: '4'),
-                StatsCard(
-                    title: AppLocalizations.of(context)!.out_of_stock,
-                    color: 'yellow',
-                    devices: '4'),
-                StatsCard(
-                    title: AppLocalizations.of(context)!.limited_stocks,
-                    color: 'blue',
-                    devices: '4'),
-                StatsCard(
-                    title: AppLocalizations.of(context)!.other_stocks,
-                    color: 'green',
-                    devices: '4'),
-              ],
-            ),
+            // Row(
+            //   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            //   children: [
+            //     StatsCard(
+            //         title: AppLocalizations.of(context)!.all_items,
+            //         color: 'red',
+            //         devices: '4'),
+            //     StatsCard(
+            //         title: AppLocalizations.of(context)!.out_of_stock,
+            //         color: 'yellow',
+            //         devices: '4'),
+            //     StatsCard(
+            //         title: AppLocalizations.of(context)!.limited_stocks,
+            //         color: 'blue',
+            //         devices: '4'),
+            //     StatsCard(
+            //         title: AppLocalizations.of(context)!.other_stocks,
+            //         color: 'green',
+            //         devices: '4'),
+            //   ],
+            // ),
             const SizedBox(height: 20),
             Container(
               padding: const EdgeInsets.all(16),
@@ -213,7 +213,7 @@ class _DeviceListPageState extends State<DeviceListPage> {
                   Expanded(
                     flex: 1,
                     child: Text(
-                      'Grade',
+                      'IMEI',
                       style: sectionTitleStyle.copyWith(fontSize: 15),
                     ),
                   ),

@@ -92,6 +92,28 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
+  // Function to show manual launch dialog
+  void _showManualLaunchDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Launch Failed'),
+          content: Text(
+              'The application could not be launched. Please install and launch it manually.'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close dialog on OK
+              },
+              child: Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   void _startTrackingDevices() async {
     Set<String> previousDeviceSet =
         Set.from(deviceSet); // Keep track of previously connected devices
@@ -114,7 +136,14 @@ class _MyHomePageState extends State<MyHomePage> {
                 await adbClient.getDeviceDetails(deviceId);
             details['id'] = deviceId;
             deviceDetailsMap[deviceId] = details; // Use Map for device details
+            /*
+            --------------blacklist check-----------
+            
+            print('iemi of connected devices: ${details['imeiOutput']}');
 
+              if the device is blacklisted check here and perform operations that you want
+
+            */
             currentDeviceSet.add(deviceId);
 
             if (!deviceSet.contains(deviceId)) {
@@ -125,34 +154,38 @@ class _MyHomePageState extends State<MyHomePage> {
                   await DeviceProgressManager.getProgress(deviceId);
               deviceProgress[deviceId] = savedProgress;
 
-              // Device connected, handle launch logic here
-              print("Launching $deviceId");
+              // Device connected, delay the launch by 5 seconds
+              Future.delayed(Duration(seconds: 5), () async {
+                // Device connected, handle launch logic here
+                print("Launching $deviceId after 5 seconds");
 
-              String apkFileName = 'warehouse.apk';
-              String packageName = 'com.getinstacash.warehouse';
-              String mainActivity =
-                  'com.getinstacash.warehouse.ui.activity.StartTest';
+                String apkFileName = 'warehouse.apk';
+                String packageName = 'com.getinstacash.warehouse';
+                String mainActivity =
+                    'com.getinstacash.warehouse.ui.activity.StartTest';
 
-              launch
-                  .launchApplication(deviceId, packageName, mainActivity)
-                  .then((result) {
-                if (result.contains('failed') ||
-                    result.contains('unresponsive')) {
-                  _showErrorDialog(
-                      context, result); // Show error dialog if launch failed
-                } else {
-                  print('App launched successfully.');
-                }
-              }).catchError((e) {
-                String modelName =
-                    connectedDevices[deviceId]?['model'] ?? 'Unknown Model';
-                setState(() {
-                  adbError = 'Error launching application on $modelName: $e';
+                launch
+                    .launchApplication(deviceId, packageName, mainActivity)
+                    .then((result) {
+                  if (result.contains('failed') ||
+                      result.contains('unresponsive')) {
+                    _showManualLaunchDialog(
+                        context); // Show manual launch dialog if launch failed
+                  } else {
+                    print('App launched successfully.');
+                  }
+                }).catchError((e) {
+                  String modelName =
+                      connectedDevices[deviceId]?['model'] ?? 'Unknown Model';
+                  setState(() {
+                    adbError = 'Error launching application on $modelName: $e';
+                  });
+                  _showManualLaunchDialog(
+                      context); // Show manual launch dialog on error
                 });
-                _showErrorDialog(context, 'Error launching application: $e');
-              });
 
-              _startLogCat(deviceId); // Start LogCat tracking for this device
+                _startLogCat(deviceId); // Start LogCat tracking for this device
+              });
             }
           }
 
@@ -166,13 +199,12 @@ class _MyHomePageState extends State<MyHomePage> {
             progressSubscriptions[deviceId]
                 ?.cancel(); // Cancel progress subscription for this device
             deviceSet.remove(deviceId);
-            //deviceProgress.remove(deviceId);
             resultsSaved.remove(deviceId);
           }
 
           setState(() {
             connectedDevices = deviceDetailsMap; // Updated to use Map
-            print('connected devices : $connectedDevices');
+            print('Connected devices: $connectedDevices');
             deviceSet = currentDeviceSet; // Updated to use Set
           });
 
@@ -240,8 +272,9 @@ class _MyHomePageState extends State<MyHomePage> {
         connectedDevices[deviceId]?['ram'] ?? '',
         connectedDevices[deviceId]?['mdm_status'] ?? '',
         connectedDevices[deviceId]?['oem'] ?? '',
-        // connectedDevices[deviceId]?['rom'] ?? '',
-        // connectedDevices[deviceId]?['carrier_lock'] ?? '',
+        connectedDevices[deviceId]?['rom'] ?? '',
+        connectedDevices[deviceId]?['carrier_lock'] ?? '',
+        connectedDevices[deviceId]?['androidVersion'] ?? '',
       );
       await LogCat.createJsonFile(deviceId);
       print("JSON DEBUG");
@@ -250,11 +283,11 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  void _resetPercent(String deviceId) async {
+  void resetPercent(String deviceId) async {
     setState(() {
       deviceProgress[deviceId] = 0;
     });
-    await DeviceProgressManager.resetProgress(deviceId);
+    await DeviceProgressManager.deleteProgress(deviceId);
   }
 
   @override
@@ -296,7 +329,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         ? Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(Icons.error_outline,
+                              const Icon(Icons.error_outline,
                                   color: Colors.red, size: 50),
                               const SizedBox(height: 10),
                               Text(

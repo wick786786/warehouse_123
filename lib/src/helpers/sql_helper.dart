@@ -2,6 +2,8 @@ import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart' as sql;
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+import 'package:warehouse_phase_1/presentation/pages/homepage/home_page.dart';
+import 'package:warehouse_phase_1/presentation/pages/homepage/widgets/device_manage.dart';
 
 class SqlHelper {
   // Call this function at the start of your application to initialize the database factory
@@ -22,10 +24,12 @@ class SqlHelper {
         model TEXT,
         iemi TEXT,
         sno TEXT,
-        ram TEXT,          -- New column for RAM
-        mdm_status TEXT,   -- New column for MDM status
-        oem TEXT,          -- New column for OEM lock
-        
+        ram TEXT,
+        mdm_status TEXT,
+        oem TEXT,
+        rom_gb TEXT,              -- New column for ROM size in GB
+        carrier_lock_status TEXT, -- New column for carrier lock status
+        ver TEXT,
         createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
       )
       """,
@@ -33,20 +37,30 @@ class SqlHelper {
   }
 
   // Function to upgrade the database schema when the version changes
-  static Future<void> upgradeDatabase(sql.Database database, int oldVersion, int newVersion) async {
+   static Future<void> upgradeDatabase(sql.Database database, int oldVersion, int newVersion) async {
     if (oldVersion < 2) {
-      // Add new columns if upgrading from version 1 to 2
+      // Add columns added in version 2
       await database.execute("ALTER TABLE info ADD COLUMN ram TEXT;");
       await database.execute("ALTER TABLE info ADD COLUMN mdm_status TEXT;");
       await database.execute("ALTER TABLE info ADD COLUMN oem TEXT;");
+    }
+    if (oldVersion < 4) {
+      // Add new columns for version 3
+      await database.execute("ALTER TABLE info ADD COLUMN rom_gb TEXT;");
+      await database.execute("ALTER TABLE info ADD COLUMN carrier_lock_status TEXT;");
+    }
+    if (oldVersion < 5) {
+      // Add new columns for version 3
+      await database.execute("ALTER TABLE info ADD COLUMN ver TEXT;");
+      //await database.execute("ALTER TABLE info ADD COLUMN carrier_lock_status TEXT;");
     }
   }
 
   // Function to open or create a new database
   static Future<sql.Database> db() async {
     return sql.openDatabase(
-      'new_databasev2.db', // New database name
-      version: 2, // Incremented version number to trigger schema upgrade
+      'new_databasev5.db', // Updated database name
+      version: 5, // Incremented version number to trigger schema upgrade
       onCreate: (sql.Database database, int version) async {
         await createTables(database);
       },
@@ -57,7 +71,8 @@ class SqlHelper {
   }
 
   // Function to insert a new item into the 'info' table
-  static Future<int> createItem(String? manufacturer, String? model, String? iemi, String? sno, String? ram, String? mdm, String? oem) async {
+  // Function to insert a new item into the 'info' table
+  static Future<int> createItem(String? manufacturer, String? model, String? iemi, String? sno, String? ram, String? mdm, String? oem, String? romGb, String? carrierLockStatus,String? ver) async {
     final db = await SqlHelper.db();
     
     // Check if a row with the same iemi or sno already exists
@@ -75,9 +90,12 @@ class SqlHelper {
         'model': model,
         'iemi': iemi,
         'sno': sno,
-        'ram': ram,                // Add RAM value
-        'mdm_status': mdm,         // Add MDM status value
-        'oem': oem,                // Add OEM lock value
+        'ram': ram,
+        'mdm_status': mdm,
+        'oem': oem,
+        'rom_gb': romGb,                        // Add ROM size value
+        'carrier_lock_status': carrierLockStatus, // Add carrier lock status value
+        'ver':ver,
       };
       return await db.update(
         'info',
@@ -92,9 +110,12 @@ class SqlHelper {
         'model': model,
         'iemi': iemi,
         'sno': sno,
-        'ram': ram,                // Add RAM value
-        'mdm_status': mdm,         // Add MDM status value
-        'oem': oem,                // Add OEM lock value
+        'ram': ram,
+        'mdm_status': mdm,
+        'oem': oem,
+        'rom_gb': romGb,                        // Add ROM size value
+        'carrier_lock_status': carrierLockStatus, // Add carrier lock status value
+        'ver':ver
       };
       return await db.insert('info', data, conflictAlgorithm: sql.ConflictAlgorithm.replace);
     }
@@ -131,23 +152,24 @@ class SqlHelper {
     return null;
   }
 
-  static Future<void> deleteDeviceProgress(String? deviceId) async {
-    final prefs = await SharedPreferences.getInstance();
-    final key = '$deviceId-progress';
+  // static Future<void> deleteDeviceProgress(String? deviceId) async {
+  //   final prefs = await SharedPreferences.getInstance();
+  //   final key = '$deviceId-progress';
 
-    if (prefs.containsKey(key)) {
-      await prefs.remove(key);
-      print('Progress for device "$deviceId" deleted from SharedPreferences.');
-    } else {
-      print('No progress found for device "$deviceId" in SharedPreferences.');
-    }
-  }
+  //   if (prefs.containsKey(key)) {
+  //     await prefs.remove(key);
+  //     print('Progress for device "$deviceId" deleted from SharedPreferences.');
+  //   } else {
+  //     print('No progress found for device "$deviceId" in SharedPreferences.');
+  //   }
+  // }
 
   static Future<int> deleteItemwithId(String? id) async {
     final db = await SqlHelper.db();
 
-    await deleteDeviceProgress(id);
-
+    await DeviceProgressManager.deleteProgress(id??'n/a');
+    // MyHomePage hm=new MyHomePage(title: 'warehouse application', onThemeToggle: () {  }, onLocaleChange: (Locale ) {  },);
+    // hm.resetPercent(id);
     return await db.delete(
       'info',
       where: 'sno = ?',

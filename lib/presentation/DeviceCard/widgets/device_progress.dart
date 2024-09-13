@@ -39,12 +39,43 @@ class DeviceProgressSection extends StatelessWidget {
                   const SizedBox(height: 10),
                   TextButton(
                     onPressed: () async {
-                      if (onDataWipe != null) {
-                        await onDataWipe!(); // Call the data wipe function
+                      // Show confirmation dialog
+                      bool? confirmDelete = await showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: const Text('Confirm Data Wipe'),
+                            content: const Text(
+                                'Are you sure you want to delete all files on your phone? This action cannot be undone.'),
+                            actions: [
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.of(context)
+                                      .pop(false); // Return false if canceled
+                                },
+                                child: const Text('Cancel'),
+                              ),
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.of(context)
+                                      .pop(true); // Return true if confirmed
+                                },
+                                child: const Text('Delete'),
+                              ),
+                            ],
+                          );
+                        },
+                      );
+
+                      // If user confirmed the deletion
+                      if (confirmDelete == true) {
+                        if (onDataWipe != null) {
+                          await onDataWipe!(); // Call the data wipe function
+                        }
                       }
                     },
                     child: const Text('Data Wipe'),
-                  ),
+                  )
                 ],
               ),
             ],

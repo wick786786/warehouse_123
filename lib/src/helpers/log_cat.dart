@@ -81,8 +81,9 @@ class LogCat {
           {
               await SqlHelper.deleteItemwithId(deviceId);
               await deleteJsonFile(deviceId);
+              await DeviceProgressManager.deleteProgress(deviceId);
           }
-          await DeviceProgressManager.resetProgress(deviceId);
+          
           _deviceProgress[deviceId] = 0;
           _progressControllers[deviceId]?.add(0);
           print('start');
@@ -124,13 +125,17 @@ class LogCat {
 
           deviceResult.add(jsonData);
 
-          if(jsonData.length*5>=85)
-          {
-               _deviceProgress[deviceId]=(jsonData.length * 5)-5;
-          }
+         // if(jsonData.length>=21)
+          //{
+         //      _deviceProgress[deviceId]=(jsonData.length * 5)-5;
+         // }
           // Increment progress
+          if((jsonData.length )*5>=85)
+          {
+            _deviceProgress[deviceId] = (jsonData.length * 5)-10;
+          }
           else{
-          _deviceProgress[deviceId] = jsonData.length * 5;
+          _deviceProgress[deviceId] = (jsonData.length * 5);
           }
           _progressControllers[deviceId]?.add(_deviceProgress[deviceId]!);
         }

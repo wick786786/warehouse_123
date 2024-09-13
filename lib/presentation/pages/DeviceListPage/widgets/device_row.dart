@@ -104,7 +104,7 @@ class DeviceRow extends StatelessWidget {
           Expanded(
             flex: 1,
             child: Text(
-              'A',
+              details['iemi']??'N/A',
               style: TextStyle(fontSize: 14, color: darkGrey),
             ),
           ),
